@@ -115,7 +115,7 @@ describe('Optimizely Forwarder', function () {
         };
 
     before(function () {
-        mParticle.init();
+        mParticle.init('test');
         mParticle.EventType = EventType;
         mParticle.ProductActionType = ProductActionType;
         mParticle.PromotionType = PromotionActionType;
