@@ -117,6 +117,8 @@ For more userIdentity types, see http://docs.mparticle.com/developers/sdk/javasc
 */
 
 var identityHandler = {
+    onUserIdentified: function(mParticleUser) {
+    },
     onIdentifyCompleted: function(mParticleUser, identityApiRequest) {
 
     },
@@ -129,13 +131,10 @@ var identityHandler = {
     onModifyCompleted: function(mParticleUser, identityApiRequest) {
 
     },
-    onUserIdentified: function(mParticleUser, identityApiRequest) {
-
-    },
 
 /*  In previous versions of the mParticle web SDK, setting user identities on
     kits is only reachable via the onSetUserIdentity method below. We recommend
-    filling out `onSetUserIdentity` for maximum compatibility
+    filling out `onSetUserIdentity` for maximum compatibility.
 */
     onSetUserIdentity: function(forwarderSettings, id, type) {
 

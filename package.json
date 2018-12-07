@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "testKarma": "node test/boilerplate/test-karma.js",
-    "watch": "watchify ./node_modules/@mparticle/web-kit-wrapper/index.js -v -o build/$KIT-Kit.js"
+    "watch": "watchify ./node_modules/@mparticle/web-kit-wrapper/index.js -v -o build/$KIT-Kit.js",
+    "configBuild": "watchify ./testapp/kitConfiguration.js -v -o testapp/build/config.js"
   },
   "devDependencies": {
     "@mparticle/web-kit-wrapper": "^1.0.0-rc3",
