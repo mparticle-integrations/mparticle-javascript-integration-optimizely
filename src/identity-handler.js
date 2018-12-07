@@ -44,7 +44,7 @@ IdentityHandler.prototype.onUserIdentified = function(
 
 /*  In previous versions of the mParticle web SDK, setting user identities on
     kits is only reachable via the onSetUserIdentity method below. We recommend
-    filling out `onSetUserIdentity` for maximum compatibility
+    filling out `onSetUserIdentity` for maximum compatibility.
 */
 IdentityHandler.prototype.onSetUserIdentity = function(
     forwarderSettings,
