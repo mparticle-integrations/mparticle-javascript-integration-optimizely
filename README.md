@@ -1,7 +1,7 @@
 # integration-optimizely-x
 Optimizely X Web Client Javascript integration for mParticle
 
-#License
+# License
 
 Copyright 2018 mParticle, Inc.
 
