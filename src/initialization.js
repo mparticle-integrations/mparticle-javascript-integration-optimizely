@@ -2,6 +2,7 @@ var optimizelyEvents = require('./optimizely-defined-events');
 
 var initialization = {
     name: 'Optimizely',
+    moduleId: 54,
     initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
         if (!testMode) {
             if (!window.optimizely) {
