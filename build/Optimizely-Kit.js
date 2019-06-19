@@ -1,249 +1,4 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var optimizelyEvents = require('./optimizely-defined-events');
-
-var commerceHandler = {
-    logCommerceEvent: function(event) {
-        var expandedEcommerceEvents = mParticle.eCommerce.expandCommerceEvent(event);
-        expandedEcommerceEvents.forEach(function(expandedEvent) {
-            var optimizelyEvent = {
-                type: 'event',
-                eventName: event.EventName,
-                tags: {}
-            };
-            optimizelyEvent.tags = expandedEvent.EventAttributes || {};
-            if (event.EventCategory === mParticle.CommerceEventType.ProductPurchase ||
-                event.EventCategory === mParticle.CommerceEventType.ProductRefund) {
-                if (expandedEvent.EventName.indexOf('Total') > -1) {
-                    if (event.CustomFlags && event.CustomFlags['Optimizely.EventName']) {
-                        optimizelyEvent.eventName = event.CustomFlags['Optimizely.EventName'];
-                    } else {
-                        optimizelyEvent.eventName = expandedEvent.EventName;
-                    }
-                    // Overall purchase event
-                    if (expandedEvent.EventAttributes && expandedEvent.EventAttributes['Total Amount']) {
-                        optimizelyEvent.tags.revenue = expandedEvent.EventAttributes['Total Amount'] * 100;
-                    }
-                    // other individual product events should not have revenue tags
-                    // which are added via the expandCommerceEvent method above
-                } else {
-                    optimizelyEvent.eventName = expandedEvent.EventName;
-                    if (optimizelyEvent.tags.revenue) {
-                        delete optimizelyEvent.tags.revenue;
-                    }
-                    if (optimizelyEvent.tags.Revenue) {
-                        delete optimizelyEvent.tags.Revenue;
-                    }
-                }
-            } else {
-                optimizelyEvent.eventName = expandedEvent.EventName;
-                if (event.CustomFlags && event.CustomFlags['Optimizely.EventName']) {
-                    optimizelyEvent.eventName = event.CustomFlags['Optimizely.EventName'];
-                }
-            }
-
-            // Events that are added to the OptimizelyUI will be available on optimizelyEvents.events
-            // Ignore events not included in the Optimizely UI
-            if (optimizelyEvents.events[optimizelyEvent.eventName]) {
-                var eventCopy = {};
-                for (var key in optimizelyEvent) {
-                    eventCopy[key] = optimizelyEvent[key];
-                }
-                window['optimizely'].push(eventCopy);
-            }
-        });
-    }
-};
-
-module.exports = commerceHandler;
-
-},{"./optimizely-defined-events":5}],2:[function(require,module,exports){
-var optimizelyEvents = require('./optimizely-defined-events');
-
-var eventHandler = {
-    logEvent: function(event) {
-        if (optimizelyEvents.events[event.EventName]) {
-            var optimizelyEvent = {
-                type: 'event',
-                eventName: event.EventName
-            };
-
-            if (event.EventAttributes) {
-                optimizelyEvent.tags = event.EventAttributes;
-            }
-
-            if (event.CustomFlags && event.CustomFlags['Optimizely.Value']) {
-                optimizelyEvent.tags.value = event.CustomFlags['Optimizely.Value'];
-            }
-            window['optimizely'].push(optimizelyEvent);
-        }
-    },
-    logPageView: function(event) {
-        if (optimizelyEvents.pages[event.EventName]) {
-            var optimizelyEvent = {
-                type: 'page',
-                pageName: event.EventName
-            };
-
-            if (event.EventAttributes) {
-                optimizelyEvent.tags = event.EventAttributes;
-            }
-            window['optimizely'].push(optimizelyEvent);
-        }
-    }
-};
-
-module.exports = eventHandler;
-
-},{"./optimizely-defined-events":5}],3:[function(require,module,exports){
-/*
-The 'mParticleUser' is an object with methods get user Identities and set/get user attributes
-Partners can determine what userIds are available to use in their SDK
-Call mParticleUser.getUserIdentities() to return an object of userIdentities --> { userIdentities: {customerid: '1234', email: 'email@gmail.com'} }
-For more identity types, see http://docs.mparticle.com/developers/sdk/javascript/identity#allowed-identity-types
-Call mParticleUser.getMPID() to get mParticle ID
-For any additional methods, see http://docs.mparticle.com/developers/sdk/javascript/apidocs/classes/mParticle.Identity.getCurrentUser().html
-*/
-
-
-/*
-identityApiRequest has the schema:
-{
-  userIdentities: {
-    customerid: '123',
-    email: 'abc'
-  }
-}
-For more userIdentity types, see http://docs.mparticle.com/developers/sdk/javascript/identity#allowed-identity-types
-*/
-
-var identityHandler = {
-    onIdentifyCompleted: function(mParticleUser, identityApiRequest) {
-
-    },
-    onLoginCompleted: function(mParticleUser, identityApiRequest) {
-
-    },
-    onLogoutCompleted: function(mParticleUser, identityApiRequest) {
-
-    },
-    onModifyCompleted: function(mParticleUser, identityApiRequest) {
-
-    },
-    onUserIdentified: function(mParticleUser, identityApiRequest) {
-
-    },
-
-/*  In previous versions of the mParticle web SDK, setting user identities on
-    kits is only reachable via the onSetUserIdentity method below. We recommend
-    filling out `onSetUserIdentity` for maximum compatibility
-*/
-    onSetUserIdentity: function(forwarderSettings, id, type) {
-
-    }
-};
-
-module.exports = identityHandler;
-
-},{}],4:[function(require,module,exports){
-var optimizelyEvents = require('./optimizely-defined-events');
-
-var initialization = {
-    name: 'Optimizely',
-    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
-        if (!testMode) {
-            if (!window.optimizely) {
-                var optimizelyScript = document.createElement('script');
-                optimizelyScript.type = 'text/javascript';
-                optimizelyScript.async = true;
-                optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
-                optimizelyScript.onload = function() {
-                    isInitialized = true;
-
-                    loadEventsAndPages();
-
-                    if (window['optimizely'] && eventQueue.length > 0) {
-                        for (var i = 0; i < eventQueue.length; i++) {
-                            processEvent(eventQueue[i]);
-                        }
-                        eventQueue = [];
-                    }
-                };
-            } else {
-                isInitialized = true;
-                loadEventsAndPages();
-            }
-        } else {
-            isInitialized = true;
-            loadEventsAndPages();
-        }
-    }
-};
-
-function loadEventsAndPages() {
-    var data,
-        events = {},
-        pages = {};
-
-    if (window.optimizely) {
-        data = window.optimizely.get('data');
-
-        for (var event in data.events) {
-            events[data.events[event].apiName] = 1;
-        }
-
-        for (var page in data.pages) {
-            pages[data.pages[page].apiName] = 1;
-        }
-
-        optimizelyEvents.events = events;
-        optimizelyEvents.pages = pages;
-    }
-}
-
-module.exports = initialization;
-
-},{"./optimizely-defined-events":5}],5:[function(require,module,exports){
-module.exports = {
-    pages: {},
-    events: {}
-};
-
-},{}],6:[function(require,module,exports){
-var sessionHandler = {
-    onSessionStart: function(event) {
-        
-    },
-    onSessionEnd: function(event) {
-
-    }
-};
-
-module.exports = sessionHandler;
-
-},{}],7:[function(require,module,exports){
-var identityHandler = {
-    onRemoveUserAttribute: function(key) {
-        var attribute = {};
-        attribute[key] = null;
-        window['optimizely'].push({
-            type: 'user',
-            attributes: attribute
-        });
-    },
-    onSetUserAttribute: function(key, value) {
-        var attribute = {};
-        attribute[key] = value;
-        window['optimizely'].push({
-            type: 'user',
-            attributes: attribute
-        });
-    }
-};
-
-module.exports = identityHandler;
-
-},{}],8:[function(require,module,exports){
 // =============== REACH OUT TO MPARTICLE IF YOU HAVE ANY QUESTIONS ===============
 //
 //  Copyright 2018 mParticle, Inc.
@@ -259,12 +14,14 @@ module.exports = identityHandler;
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-var CommerceHandler = require('../../../integration-builder/commerce-handler');
-var EventHandler = require('../../../integration-builder/event-handler');
-var IdentityHandler = require('../../../integration-builder/identity-handler');
-var Initialization = require('../../../integration-builder/initialization');
-var SessionHandler = require('../../../integration-builder/session-handler');
-var UserAttributeHandler = require('../../../integration-builder/user-attribute-handler');
+
+var Common = require('../../../src/common');
+var CommerceHandler = require('../../../src/commerce-handler');
+var EventHandler = require('../../../src/event-handler');
+var IdentityHandler = require('../../../src/identity-handler');
+var Initialization = require('../../../src/initialization');
+var SessionHandler = require('../../../src/session-handler');
+var UserAttributeHandler = require('../../../src/user-attribute-handler');
 
 (function (window) {
     var name = Initialization.name,
@@ -286,13 +43,25 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
             eventQueue = [];
 
         self.name = Initialization.name;
+        self.common = new Common();
 
         function initForwarder(settings, service, testMode, trackerId, userAttributes, userIdentities) {
             forwarderSettings = settings;
-            reportingService = service;
+
+            if (window.mParticle.isTestEnvironment) {
+                reportingService = function() {
+                };
+            } else {
+                reportingService = service;
+            }
 
             try {
-                Initialization.initForwarder(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized);
+                Initialization.initForwarder(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized, self.common);
+                self.eventHandler = new EventHandler(self.common);
+                self.identityHandler = new IdentityHandler(self.common);
+                self.userAttributeHandler = new UserAttributeHandler(self.common);
+                self.commerceHandler = new CommerceHandler(self.common);
+
                 isInitialized = true;
             } catch (e) {
                 console.log('Failed to initialize ' + name + ' - ' + e);
@@ -355,7 +124,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
 
         function logError(event) {
             try {
-                EventHandler.logError(event);
+                self.eventHandler.logError(event);
                 return true;
             } catch (e) {
                 return {error: 'Error logging error on forwarder ' + name + '; ' + e};
@@ -364,7 +133,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
 
         function logPageView(event) {
             try {
-                EventHandler.logPageView(event);
+                self.eventHandler.logPageView(event);
                 return true;
             } catch (e) {
                 return {error: 'Error logging page view on forwarder ' + name + '; ' + e};
@@ -373,7 +142,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
 
         function logEvent(event) {
             try {
-                EventHandler.logEvent(event);
+                self.eventHandler.logEvent(event);
                 return true;
             } catch (e) {
                 return {error: 'Error logging event on forwarder ' + name + '; ' + e};
@@ -382,7 +151,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
 
         function logEcommerceEvent(event) {
             try {
-                CommerceHandler.logCommerceEvent(event);
+                self.commerceHandler.logCommerceEvent(event);
                 return true;
             } catch (e) {
                 return {error: 'Error logging purchase event on forwarder ' + name + '; ' + e};
@@ -392,7 +161,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
         function setUserAttribute(key, value) {
             if (isInitialized) {
                 try {
-                    UserAttributeHandler.onSetUserAttribute(key, value, forwarderSettings);
+                    self.userAttributeHandler.onSetUserAttribute(key, value, forwarderSettings);
                     return 'Successfully set user attribute on forwarder ' + name;
                 } catch (e) {
                     return 'Error setting user attribute on forwarder ' + name + '; ' + e;
@@ -405,7 +174,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
         function removeUserAttribute(key) {
             if (isInitialized) {
                 try {
-                    UserAttributeHandler.onRemoveUserAttribute(key, forwarderSettings);
+                    self.userAttributeHandler.onRemoveUserAttribute(key, forwarderSettings);
                     return 'Successfully removed user attribute on forwarder ' + name;
                 } catch (e) {
                     return 'Error removing user attribute on forwarder ' + name + '; ' + e;
@@ -418,7 +187,7 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
         function setUserIdentity(id, type) {
             if (isInitialized) {
                 try {
-                    IdentityHandler.onSetUserIdentity(forwarderSettings, id, type);
+                    self.identityHandler.onSetUserIdentity(forwarderSettings, id, type);
                     return 'Successfully set user Identity on forwarder ' + name;
                 } catch (e) {
                     return 'Error removing user attribute on forwarder ' + name + '; ' + e;
@@ -429,28 +198,93 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
 
         }
 
-        function onUserIdentified(user, method) {
-            var identityMapping = {
-                modify: 'onModifyCompleted',
-                identify: 'onIdentifyCompleted',
-                login: 'onLoginCompleted',
-                logout: 'onLogoutCompleted'
-            };
+        function onUserIdentified(user) {
             if (isInitialized) {
                 try {
-                    if (method) {
-                        IdentityHandler[identityMapping[method]](user, forwarderSettings);
-                    } else {
-                        IdentityHandler.onUserIdentified(user, forwarderSettings);
-                    }
+                    self.identityHandler.onUserIdentified(user);
 
-                    return 'Successfully set user Identity on forwarder ' + name;
+                    return 'Successfully called onUserIdentified on forwarder ' + name;
                 } catch (e) {
-                    return {error: 'Error setting user identity on forwarder ' + name + '; ' + e};
+                    return {error: 'Error calling onUserIdentified on forwarder ' + name + '; ' + e};
                 }
             }
             else {
                 return 'Can\'t set new user identities on forwader  ' + name + ', not initialized';
+            }
+        }
+
+        function onIdentifyComplete(user, filteredIdentityRequest) {
+            if (isInitialized) {
+                try {
+                    self.identityHandler.onIdentifyComplete(user, filteredIdentityRequest);
+
+                    return 'Successfully called onIdentifyComplete on forwarder ' + name;
+                } catch (e) {
+                    return {error: 'Error calling onIdentifyComplete on forwarder ' + name + '; ' + e};
+                }
+            }
+            else {
+                return 'Can\'t call onIdentifyCompleted on forwader  ' + name + ', not initialized';
+            }
+        }
+
+        function onLoginComplete(user, filteredIdentityRequest) {
+            if (isInitialized) {
+                try {
+                    self.identityHandler.onLoginComplete(user, filteredIdentityRequest);
+
+                    return 'Successfully called onLoginComplete on forwarder ' + name;
+                } catch (e) {
+                    return {error: 'Error calling onLoginComplete on forwarder ' + name + '; ' + e};
+                }
+            }
+            else {
+                return 'Can\'t call onLoginComplete on forwader  ' + name + ', not initialized';
+            }
+        }
+
+        function onLogoutComplete(user, filteredIdentityRequest) {
+            if (isInitialized) {
+                try {
+                    self.identityHandler.onLogoutComplete(user, filteredIdentityRequest);
+
+                    return 'Successfully called onLogoutComplete on forwarder ' + name;
+                } catch (e) {
+                    return {error: 'Error calling onLogoutComplete on forwarder ' + name + '; ' + e};
+                }
+            }
+            else {
+                return 'Can\'t call onLogoutComplete on forwader  ' + name + ', not initialized';
+            }
+        }
+
+        function onModifyComplete(user, filteredIdentityRequest) {
+            if (isInitialized) {
+                try {
+                    self.identityHandler.onModifyComplete(user, filteredIdentityRequest);
+
+                    return 'Successfully called onModifyComplete on forwarder ' + name;
+                } catch (e) {
+                    return {error: 'Error calling onModifyComplete on forwarder ' + name + '; ' + e};
+                }
+            }
+            else {
+                return 'Can\'t call onModifyComplete on forwader  ' + name + ', not initialized';
+            }
+        }
+
+        function setOptOut(isOptingOutBoolean) {
+            if (isInitialized) {
+                try {
+                    self.initialization.setOptOut(isOptingOutBoolean);
+
+                    return 'Successfully called setOptOut on forwarder ' + name;
+                } catch (e) {
+                    return {error: 'Error calling setOptOut on forwarder ' + name + '; ' + e};
+                }
+            }
+            else {
+                return 'Can\'t call setOptOut on forwader  ' + name + ', not initialized';
             }
         }
 
@@ -460,6 +294,11 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
         this.removeUserAttribute = removeUserAttribute;
         this.onUserIdentified = onUserIdentified;
         this.setUserIdentity = setUserIdentity;
+        this.onIdentifyComplete = onIdentifyComplete;
+        this.onLoginComplete = onLoginComplete;
+        this.onLogoutComplete = onLogoutComplete;
+        this.onModifyComplete = onModifyComplete;
+        this.setOptOut = setOptOut;
     };
 
     if (!window || !window.mParticle || !window.mParticle.addForwarder) {
@@ -472,4 +311,284 @@ var UserAttributeHandler = require('../../../integration-builder/user-attribute-
     });
 })(window);
 
-},{"../../../integration-builder/commerce-handler":1,"../../../integration-builder/event-handler":2,"../../../integration-builder/identity-handler":3,"../../../integration-builder/initialization":4,"../../../integration-builder/session-handler":6,"../../../integration-builder/user-attribute-handler":7}]},{},[8]);
+},{"../../../src/commerce-handler":2,"../../../src/common":3,"../../../src/event-handler":4,"../../../src/identity-handler":5,"../../../src/initialization":6,"../../../src/session-handler":8,"../../../src/user-attribute-handler":9}],2:[function(require,module,exports){
+var optimizelyEvents = require('./optimizely-defined-events');
+
+function CommerceHandler(common) {
+    this.common = common || {};
+}
+
+CommerceHandler.prototype.logCommerceEvent = function(event) {
+    var expandedEcommerceEvents = mParticle.eCommerce.expandCommerceEvent(
+        event
+    );
+    expandedEcommerceEvents.forEach(function(expandedEvent) {
+        var optimizelyEvent = {
+            type: 'event',
+            eventName: event.EventName,
+            tags: {}
+        };
+        optimizelyEvent.tags = expandedEvent.EventAttributes || {};
+        if (
+            event.EventCategory ===
+                mParticle.CommerceEventType.ProductPurchase ||
+            event.EventCategory === mParticle.CommerceEventType.ProductRefund
+        ) {
+            if (expandedEvent.EventName.indexOf('Total') > -1) {
+                if (
+                    event.CustomFlags &&
+                    event.CustomFlags['Optimizely.EventName']
+                ) {
+                    optimizelyEvent.eventName =
+                        event.CustomFlags['Optimizely.EventName'];
+                } else {
+                    optimizelyEvent.eventName = expandedEvent.EventName;
+                }
+                // Overall purchase event
+                if (
+                    expandedEvent.EventAttributes &&
+                    expandedEvent.EventAttributes['Total Amount']
+                ) {
+                    optimizelyEvent.tags.revenue =
+                        expandedEvent.EventAttributes['Total Amount'] * 100;
+                }
+                // other individual product events should not have revenue tags
+                // which are added via the expandCommerceEvent method above
+            } else {
+                optimizelyEvent.eventName = expandedEvent.EventName;
+                if (optimizelyEvent.tags.revenue) {
+                    delete optimizelyEvent.tags.revenue;
+                }
+                if (optimizelyEvent.tags.Revenue) {
+                    delete optimizelyEvent.tags.Revenue;
+                }
+            }
+        } else {
+            optimizelyEvent.eventName = expandedEvent.EventName;
+            if (
+                event.CustomFlags &&
+                event.CustomFlags['Optimizely.EventName']
+            ) {
+                optimizelyEvent.eventName =
+                    event.CustomFlags['Optimizely.EventName'];
+            }
+        }
+
+        // Events that are added to the OptimizelyUI will be available on optimizelyEvents.events
+        // Ignore events not included in the Optimizely UI
+        if (optimizelyEvents.events[optimizelyEvent.eventName]) {
+            var eventCopy = {};
+            for (var key in optimizelyEvent) {
+                eventCopy[key] = optimizelyEvent[key];
+            }
+            window['optimizely'].push(eventCopy);
+        }
+    });
+};
+
+module.exports = CommerceHandler;
+
+},{"./optimizely-defined-events":7}],3:[function(require,module,exports){
+function Common() {}
+
+module.exports = Common;
+
+},{}],4:[function(require,module,exports){
+var optimizelyEvents = require('./optimizely-defined-events');
+
+function EventHandler(common) {
+    this.common = common || {};
+}
+
+EventHandler.prototype.logEvent = function(event) {
+    if (optimizelyEvents.events[event.EventName]) {
+        var optimizelyEvent = {
+            type: 'event',
+            eventName: event.EventName
+        };
+
+        if (event.EventAttributes) {
+            optimizelyEvent.tags = event.EventAttributes;
+        }
+
+        if (event.CustomFlags && event.CustomFlags['Optimizely.Value']) {
+            optimizelyEvent.tags.value = event.CustomFlags['Optimizely.Value'];
+        }
+        window['optimizely'].push(optimizelyEvent);
+    }
+};
+EventHandler.prototype.logPageView = function(event) {
+    if (optimizelyEvents.pages[event.EventName]) {
+        var optimizelyEvent = {
+            type: 'page',
+            pageName: event.EventName
+        };
+
+        if (event.EventAttributes) {
+            optimizelyEvent.tags = event.EventAttributes;
+        }
+        window['optimizely'].push(optimizelyEvent);
+    }
+};
+
+module.exports = EventHandler;
+
+},{"./optimizely-defined-events":7}],5:[function(require,module,exports){
+/*
+The 'mParticleUser' is an object with methods get user Identities and set/get user attributes
+Partners can determine what userIds are available to use in their SDK
+Call mParticleUser.getUserIdentities() to return an object of userIdentities --> { userIdentities: {customerid: '1234', email: 'email@gmail.com'} }
+For more identity types, see http://docs.mparticle.com/developers/sdk/javascript/identity#allowed-identity-types
+Call mParticleUser.getMPID() to get mParticle ID
+For any additional methods, see http://docs.mparticle.com/developers/sdk/javascript/apidocs/classes/mParticle.Identity.getCurrentUser().html
+*/
+
+/*
+identityApiRequest has the schema:
+{
+  userIdentities: {
+    customerid: '123',
+    email: 'abc'
+  }
+}
+For more userIdentity types, see http://docs.mparticle.com/developers/sdk/javascript/identity#allowed-identity-types
+*/
+
+function IdentityHandler(common) {
+    this.common = common || {};
+}
+IdentityHandler.prototype.onIdentifyCompleted = function(
+    mParticleUser,
+    identityApiRequest
+) {};
+IdentityHandler.prototype.onLoginCompleted = function(
+    mParticleUser,
+    identityApiRequest
+) {};
+IdentityHandler.prototype.onLogoutCompleted = function(
+    mParticleUser,
+    identityApiRequest
+) {};
+IdentityHandler.prototype.onModifyCompleted = function(
+    mParticleUser,
+    identityApiRequest
+) {};
+IdentityHandler.prototype.onUserIdentified = function(
+    mParticleUser,
+    identityApiRequest
+) {};
+
+/*  In previous versions of the mParticle web SDK, setting user identities on
+    kits is only reachable via the onSetUserIdentity method below. We recommend
+    filling out `onSetUserIdentity` for maximum compatibility
+*/
+IdentityHandler.prototype.onSetUserIdentity = function(
+    forwarderSettings,
+    id,
+    type
+) {};
+
+module.exports = IdentityHandler;
+
+},{}],6:[function(require,module,exports){
+var optimizelyEvents = require('./optimizely-defined-events');
+
+var initialization = {
+    name: 'Optimizely',
+    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
+        if (!testMode) {
+            if (!window.optimizely) {
+                var optimizelyScript = document.createElement('script');
+                optimizelyScript.type = 'text/javascript';
+                optimizelyScript.async = true;
+                optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
+                optimizelyScript.onload = function() {
+                    isInitialized = true;
+
+                    loadEventsAndPages();
+
+                    if (window['optimizely'] && eventQueue.length > 0) {
+                        for (var i = 0; i < eventQueue.length; i++) {
+                            processEvent(eventQueue[i]);
+                        }
+                        eventQueue = [];
+                    }
+                };
+            } else {
+                isInitialized = true;
+                loadEventsAndPages();
+            }
+        } else {
+            isInitialized = true;
+            loadEventsAndPages();
+        }
+    }
+};
+
+function loadEventsAndPages() {
+    var data,
+        events = {},
+        pages = {};
+
+    if (window.optimizely) {
+        data = window.optimizely.get('data');
+
+        for (var event in data.events) {
+            events[data.events[event].apiName] = 1;
+        }
+
+        for (var page in data.pages) {
+            pages[data.pages[page].apiName] = 1;
+        }
+
+        optimizelyEvents.events = events;
+        optimizelyEvents.pages = pages;
+    }
+}
+
+module.exports = initialization;
+
+},{"./optimizely-defined-events":7}],7:[function(require,module,exports){
+module.exports = {
+    pages: {},
+    events: {}
+};
+
+},{}],8:[function(require,module,exports){
+var sessionHandler = {
+    onSessionStart: function(event) {
+        
+    },
+    onSessionEnd: function(event) {
+
+    }
+};
+
+module.exports = sessionHandler;
+
+},{}],9:[function(require,module,exports){
+function UserAttributeHandler(common) {
+    this.common = common = {};
+}
+
+UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
+    var attribute = {};
+    attribute[key] = null;
+    window['optimizely'].push({
+        type: 'user',
+        attributes: attribute
+    });
+};
+UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
+    var attribute = {};
+    attribute[key] = value;
+    window['optimizely'].push({
+        type: 'user',
+        attributes: attribute
+    });
+};
+
+module.exports = UserAttributeHandler;
+
+},{}]},{},[1]);

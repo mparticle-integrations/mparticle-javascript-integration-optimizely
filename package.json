@@ -7,7 +7,7 @@
     "watch": "watchify ./node_modules/@mparticle/web-kit-wrapper/index.js -v -o build/$KIT-Kit.js"
   },
   "devDependencies": {
-    "@mparticle/web-kit-wrapper": "^1.0.0-rc3",
+    "@mparticle/web-kit-wrapper": "^1.0.0-rc6",
     "mocha": "^2.3.2",
     "should": "^7.1.0",
     "watchify": "^3.9.0",
