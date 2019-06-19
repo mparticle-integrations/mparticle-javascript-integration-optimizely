@@ -115,7 +115,7 @@ describe('Optimizely Forwarder', function () {
         };
 
     before(function () {
-        mParticle.init();
+        mParticle.init('fake-api-key');
         mParticle.EventType = EventType;
         mParticle.ProductActionType = ProductActionType;
         mParticle.PromotionType = PromotionActionType;
