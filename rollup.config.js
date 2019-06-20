@@ -11,7 +11,7 @@ const rootFolderConfig = {
     input,
     output: {
         ...output,
-        file: 'Optimizely-Kit.js'
+        file: 'Optimizely.js'
     },
     plugins: [...plugins]
 };

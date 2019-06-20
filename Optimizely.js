@@ -2,7 +2,8 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
     (global = global || self, factory(global['mp-optimizely-kit'] = {}));
-}(this, function (exports) {
+}(this, function (exports) { 'use strict';
+
     function Common() {}
 
     var common = Common;
@@ -181,6 +182,7 @@
 
     var initialization = {
         name: 'Optimizely',
+        moduleId: 54,
         initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
             if (!testMode) {
                 if (!window.optimizely) {
