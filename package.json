@@ -11,7 +11,6 @@
     "testKarma": "node test/boilerplate/test-karma.js",
     "build": "rollup --config rollup.config.js",
     "watch": "rollup --config rollup.config.js -w",
-    "old-watch": "watchify ./node_modules/@mparticle/web-kit-wrapper/index.js -v -o build/$KIT-Kit.js"
   },
   "devDependencies": {
     "@mparticle/web-kit-wrapper": "^1.0.0-rc6",
