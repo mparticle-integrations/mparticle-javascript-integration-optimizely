@@ -21,19 +21,19 @@ For more userIdentity types, see http://docs.mparticle.com/developers/sdk/javasc
 function IdentityHandler(common) {
     this.common = common || {};
 }
-IdentityHandler.prototype.onIdentifyCompleted = function(
+IdentityHandler.prototype.onIdentifyComplete = function(
     mParticleUser,
     identityApiRequest
 ) {};
-IdentityHandler.prototype.onLoginCompleted = function(
+IdentityHandler.prototype.onLoginComplete = function(
     mParticleUser,
     identityApiRequest
 ) {};
-IdentityHandler.prototype.onLogoutCompleted = function(
+IdentityHandler.prototype.onLogoutComplete = function(
     mParticleUser,
     identityApiRequest
 ) {};
-IdentityHandler.prototype.onModifyCompleted = function(
+IdentityHandler.prototype.onModifyComplete = function(
     mParticleUser,
     identityApiRequest
 ) {};
