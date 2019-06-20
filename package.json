@@ -10,10 +10,10 @@
   "scripts": {
     "testKarma": "node test/boilerplate/test-karma.js",
     "build": "rollup --config rollup.config.js",
-    "watch": "rollup --config rollup.config.js -w",
+    "watch": "rollup --config rollup.config.js -w"
   },
   "devDependencies": {
-    "@mparticle/web-kit-wrapper": "^1.0.0-rc6",
+    "@mparticle/web-kit-wrapper": "^1.0.0-rc7",
     "chai": "^4.2.0",
     "karma": "^3.1.1",
     "karma-chai": "^0.1.0",
