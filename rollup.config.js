@@ -20,7 +20,7 @@ const buildFolderConfig = {
     input,
     output: {
         ...output,
-        file: 'build/Optimizely-Kit.js'
+        file: 'dist/Optimizely-Kit.js'
     },
     plugins: [...plugins]
 };
