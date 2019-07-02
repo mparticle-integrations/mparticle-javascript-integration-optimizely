@@ -3,7 +3,7 @@ import base from './node_modules/@mparticle/web-kit-wrapper/rollup.base';
 const input = base.input;
 const output = {
     ...base.output,
-    name: 'mpOtimizelyKit'
+    name: 'mpOptimizelyKit'
 };
 const plugins = [...base.plugins];
 

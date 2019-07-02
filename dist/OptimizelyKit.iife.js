@@ -1,4 +1,4 @@
-var mpOtimizelyKit = (function (exports) {
+var mpOptimizelyKit = (function (exports) {
     'use strict';
 
     function Common() {}
