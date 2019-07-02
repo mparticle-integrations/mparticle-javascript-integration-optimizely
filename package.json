@@ -1,19 +1,20 @@
 {
   "name": "@mparticle/web-optimizely-kit",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.1-rc.1",
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
-  "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-optimizely",
-  "browser": "dist/Optimizely-Kit.js",
+  "description": "mParticle integration sdk for Amplitude",
+  "browser": "dist/OptimizelyKit.common.js",
   "files": [
-    "dist/Optimizely-Kit.js"
+    "dist/OptimizelyKit.common.js"
   ],
+  "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-optimizely",
   "scripts": {
     "testKarma": "node test/boilerplate/test-karma.js",
     "build": "rollup --config rollup.config.js",
     "watch": "rollup --config rollup.config.js -w"
   },
   "devDependencies": {
-    "@mparticle/web-kit-wrapper": "^1.0.0-rc7",
+    "@mparticle/web-kit-wrapper": "^1.0.0-rc8",
     "chai": "^4.2.0",
     "karma": "^3.1.1",
     "karma-chai": "^0.1.0",
@@ -33,6 +34,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
+    "isobject": "^4.0.0",
     "@mparticle/web-sdk": "^2.9.4-rc.1"
   },
   "license": "Apache-2.0"
