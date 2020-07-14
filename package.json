@@ -11,11 +11,11 @@
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-optimizely",
   "scripts": {
     "testKarma": "node test/boilerplate/test-karma.js",
-    "build": "rollup --config rollup.config.js",
-    "watch": "rollup --config rollup.config.js -w"
+    "build": "ENVIRONMENT=production rollup --config rollup.config.js",
+    "watch": "ENVIRONMENT=production rollup --config rollup.config.js -w"
   },
   "devDependencies": {
-    "@mparticle/web-kit-wrapper": "^1.0.0-rc8",
+    "@mparticle/web-kit-wrapper": "^1.0.4",
     "chai": "^4.2.0",
     "karma": "^3.1.1",
     "karma-chai": "^0.1.0",

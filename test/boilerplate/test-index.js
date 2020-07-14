@@ -1,26 +1,22 @@
 window.MockHttpServer = require('./mockhttprequest.js');
 window.Should = require('should');
+require('@mparticle/web-sdk');
 
-var mp = function () {
-    var self = this;
+window.mParticle.addForwarder = function(forwarder) {
+    window.mParticle.forwarder = new forwarder.constructor();
+};
 
-    this.addForwarder = function (forwarder) {
-        self.forwarder = new forwarder.constructor();
-    };
-
-    this.getCurrentUser = function() {
-        return currentUser();
-    };
+window.getCurrentUser = function() {
+    return currentUser();
 };
 
 function currentUser() {
     return {
         getMPID: function() {
             return 123;
-        }
+        },
     };
 }
+require('../../dist/OptimizelyKit.common');
 
-window.mParticle = new mp();
-require('../../src/mParticleJSKitBoilerplate.js');
 require('../tests.js');
