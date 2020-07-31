@@ -1,4 +1,6 @@
 var optimizelyEvents = require('./optimizely-defined-events');
+var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
+var helpers = require('./helpers');
 
 var initialization = {
     name: 'Optimizely',
@@ -27,9 +29,39 @@ var initialization = {
                 isInitialized = true;
                 loadEventsAndPages();
             }
+            if (!window.optimizelyClientInstance) {
+                var fragment = document.createDocumentFragment();
+                var fullStackScripts = ['https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
+                                        'https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'];
+                
+                fullStackScripts.forEach(function(script) {
+                    var optimizelyFSScript = document.createElement('script');
+                    optimizelyFSScript.type = 'text/javascript';
+                    optimizelyFSScript.async = true;
+                    optimizelyFSScript.src = script;
+                    fragment.appendChild(optimizelyFSScript);
+                });
+
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(fragment);
+                fragment.onload = function() {
+                    // Instantiate Optimizely Full Stack Client
+                    var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                        datafile: window.optimizelyDatafile
+                    });
+
+                    optimizelyClientInstance.onReady().then(() => {
+                        isInitialized = true;
+                        loadFullStackEvents();
+                    });
+                };
+            } else {
+                isInitialized = true;
+                loadFullStackEvents();
+            }            
         } else {
             isInitialized = true;
             loadEventsAndPages();
+            loadFullStackEvents();
         }
     }
 };
@@ -52,6 +84,21 @@ function loadEventsAndPages() {
 
         optimizelyEvents.events = events;
         optimizelyEvents.pages = pages;
+    }
+}
+
+function loadFullStackEvents() {
+    var fullStackData,
+    fullStackEvents = {};
+
+    if (window.optimizelyDatafile) {
+        fullStackData = helpers.arrayToObject(window.optimizelyDatafile.events, "id");
+
+        for (var event in fullStackData) {
+            fullStackEvents[fullStackData[event].key] = 1;
+        }
+
+        optimizelyFullStackEvents.events = fullStackEvents;
     }
 }
 

@@ -85,6 +85,119 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
 
 var commerceHandler = CommerceHandler;
 
+var optimizelyFsDefinedEvents = {
+    events: {}
+};
+
+var helpers = {
+    arrayToObject: function(array, keyField) {
+        var newObj = array.reduce(function(obj, item) {
+            obj[item[keyField]] = item;
+            return obj;
+        }, {});
+    return newObj;
+    },
+};
+
+var helpers_1 = helpers;
+
+var initialization = {
+    name: 'Optimizely',
+    moduleId: 54,
+    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
+        if (!testMode) {
+            if (!window.optimizely) {
+                var optimizelyScript = document.createElement('script');
+                optimizelyScript.type = 'text/javascript';
+                optimizelyScript.async = true;
+                optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
+                optimizelyScript.onload = function() {
+
+                    loadEventsAndPages();
+
+                    if (window['optimizely'] && eventQueue.length > 0) {
+                        for (var i = 0; i < eventQueue.length; i++) {
+                            processEvent(eventQueue[i]);
+                        }
+                        eventQueue = [];
+                    }
+                };
+            } else {
+                loadEventsAndPages();
+            }
+            if (!window.optimizelyClientInstance) {
+                var fragment = document.createDocumentFragment();
+                var fullStackScripts = ['https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
+                                        'https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'];
+                
+                fullStackScripts.forEach(function(script) {
+                    var optimizelyFSScript = document.createElement('script');
+                    optimizelyFSScript.type = 'text/javascript';
+                    optimizelyFSScript.async = true;
+                    optimizelyFSScript.src = script;
+                    fragment.appendChild(optimizelyFSScript);
+                });
+
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(fragment);
+                fragment.onload = function() {
+                    // Instantiate Optimizely Full Stack Client
+                    var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                        datafile: window.optimizelyDatafile
+                    });
+
+                    optimizelyClientInstance.onReady().then(() => {
+                        loadFullStackEvents();
+                    });
+                };
+            } else {
+                loadFullStackEvents();
+            }            
+        } else {
+            loadEventsAndPages();
+            loadFullStackEvents();
+        }
+    }
+};
+
+function loadEventsAndPages() {
+    var data,
+        events = {},
+        pages = {};
+
+    if (window.optimizely) {
+        data = window.optimizely.get('data');
+
+        for (var event in data.events) {
+            events[data.events[event].apiName] = 1;
+        }
+
+        for (var page in data.pages) {
+            pages[data.pages[page].apiName] = 1;
+        }
+
+        optimizelyDefinedEvents.events = events;
+        optimizelyDefinedEvents.pages = pages;
+    }
+}
+
+function loadFullStackEvents() {
+    var fullStackData,
+    fullStackEvents = {};
+
+    if (window.optimizelyDatafile) {
+        fullStackData = helpers_1.arrayToObject(window.optimizelyDatafile.events, "id");
+
+        for (var event in fullStackData) {
+            fullStackEvents[fullStackData[event].key] = 1;
+        }
+
+        optimizelyFsDefinedEvents.events = fullStackEvents;
+    }
+}
+
+var initialization_1 = initialization;
+
 function EventHandler(common) {
     this.common = common || {};
 }
@@ -104,6 +217,53 @@ EventHandler.prototype.logEvent = function(event) {
             optimizelyEvent.tags.value = event.CustomFlags['Optimizely.Value'];
         }
         window['optimizely'].push(optimizelyEvent);
+    }
+
+    if (optimizelyFsDefinedEvents.events[event.EventName]) {
+        var eventKey = event.EventName,
+            userId,
+            userAttributes = {},
+            eventTags = {};
+
+        if (window.mParticle && window.mParticle.Identity) {
+            var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
+
+            switch(forwarderSettings.userIdField) {
+                case 'customerId':
+                    userId = userIdentities["customerId"];
+                    break;
+                case 'email':
+                    userId = userIdentities["email"];
+                    break;
+                case 'mpid':
+                    userId = userIdentities["mpid"];
+                    break;
+                case 'other':
+                    userId = userIdentities["other"];
+                    break;
+                case 'other2':
+                    userId = userIdentities["other2"];
+                    break;
+                case 'other3':
+                    userId = userIdentities["other3"];
+                    break;
+                case 'other4':
+                    userId = userIdentities["other4"];
+                    break;
+                default:
+                    userId = null;
+            }
+        }
+
+        if (event.EventAttributes) {
+            userAttributes = event.EventAttributes;
+        }
+
+        if (event.CustomFlags && event.CustomFlags['OptimizelyFullStack.Value']) {
+            eventTags.value = event.CustomFlags['OptimizelyFullStack.Value'];
+        }
+
+        window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
     }
 };
 EventHandler.prototype.logPageView = function(event) {
@@ -177,60 +337,6 @@ IdentityHandler.prototype.onSetUserIdentity = function(
 ) {};
 
 var identityHandler = IdentityHandler;
-
-var initialization = {
-    name: 'Optimizely',
-    moduleId: 54,
-    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
-        if (!testMode) {
-            if (!window.optimizely) {
-                var optimizelyScript = document.createElement('script');
-                optimizelyScript.type = 'text/javascript';
-                optimizelyScript.async = true;
-                optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
-                optimizelyScript.onload = function() {
-
-                    loadEventsAndPages();
-
-                    if (window['optimizely'] && eventQueue.length > 0) {
-                        for (var i = 0; i < eventQueue.length; i++) {
-                            processEvent(eventQueue[i]);
-                        }
-                        eventQueue = [];
-                    }
-                };
-            } else {
-                loadEventsAndPages();
-            }
-        } else {
-            loadEventsAndPages();
-        }
-    }
-};
-
-function loadEventsAndPages() {
-    var data,
-        events = {},
-        pages = {};
-
-    if (window.optimizely) {
-        data = window.optimizely.get('data');
-
-        for (var event in data.events) {
-            events[data.events[event].apiName] = 1;
-        }
-
-        for (var page in data.pages) {
-            pages[data.pages[page].apiName] = 1;
-        }
-
-        optimizelyDefinedEvents.events = events;
-        optimizelyDefinedEvents.pages = pages;
-    }
-}
-
-var initialization_1 = initialization;
 
 var sessionHandler = {
     onSessionStart: function(event) {
