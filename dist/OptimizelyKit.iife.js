@@ -126,29 +126,30 @@ var OptimizelyKit = (function (exports) {
                     loadEventsAndPages();
                 }
                 if (!window.optimizelyClientInstance) {
-                    var fragment = document.createDocumentFragment();
-                    var fullStackScripts = ['https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
-                                            'https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'];
-                    
-                    fullStackScripts.forEach(function(script) {
-                        var optimizelyFSScript = document.createElement('script');
-                        optimizelyFSScript.type = 'text/javascript';
-                        optimizelyFSScript.async = true;
-                        optimizelyFSScript.src = script;
-                        fragment.appendChild(optimizelyFSScript);
-                    });
-
-                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(fragment);
-                    fragment.onload = function() {
-                        // Instantiate Optimizely Full Stack Client
-                        var optimizelyClientInstance = window.optimizelySdk.createInstance({
-                            datafile: window.optimizelyDatafile
-                        });
-
-                        optimizelyClientInstance.onReady().then(() => {
-                            loadFullStackEvents();
-                        });
+                    var loadScript = src => {
+                        return new Promise((resolve, reject) => {
+                            var script = document.createElement('script');
+                            script.type = 'text/javascript';
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            script.src = src;
+                            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(script);
+                        })
                     };
+
+                    loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js')
+                        .then(() => loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'))
+                        .then(() => {
+                            // Instantiate Optimizely Full Stack Client
+                            var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                            datafile: window.optimizelyDatafile
+                            });
+
+                            optimizelyClientInstance.onReady().then(() => {
+                                loadFullStackEvents();
+                            });                       
+                        })
+                        .catch(() => console.log('Something went wrong.'));
                 } else {
                     loadFullStackEvents();
                 }            
