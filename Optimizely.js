@@ -96,6 +96,27 @@ var mpOptimizelyKit = (function (exports) {
             }, {});
         return newObj;
         },
+        loadScript: function(src, callback) {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+          
+            // IE
+            if (script.readyState) {
+              script.onreadystatechange = function () {
+                if (script.readyState === 'loaded' || script.readyState === 'complete') {
+                  script.onreadystatechange = null;
+                  callback();
+                }
+              };
+            }
+            // other browsers
+            else {
+              script.onload = callback;
+            }
+          
+            script.src = src;
+            document.head.appendChild(script);
+        },
     };
 
     var helpers_1 = helpers;
@@ -125,31 +146,21 @@ var mpOptimizelyKit = (function (exports) {
                 } else {
                     loadEventsAndPages();
                 }
+
                 if (!window.optimizelyClientInstance) {
-                    var loadScript = src => {
-                        return new Promise((resolve, reject) => {
-                            var script = document.createElement('script');
-                            script.type = 'text/javascript';
-                            script.onload = resolve;
-                            script.onerror = reject;
-                            script.src = src;
-                            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(script);
-                        })
+                    var instantiateFSClient = function() {
+                        var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                            datafile: window.optimizelyDatafile
+                        });
+
+                        optimizelyClientInstance.onReady().then(() => {
+                            loadFullStackEvents();
+                        });  
                     };
 
-                    loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js')
-                        .then(() => loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'))
-                        .then(() => {
-                            // Instantiate Optimizely Full Stack Client
-                            var optimizelyClientInstance = window.optimizelySdk.createInstance({
-                            datafile: window.optimizelyDatafile
-                            });
+                    helpers_1.loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
+                    helpers_1.loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js', instantiateFSClient));
 
-                            optimizelyClientInstance.onReady().then(() => {
-                                loadFullStackEvents();
-                            });                       
-                        })
-                        .catch(() => console.log('Something went wrong.'));
                 } else {
                     loadFullStackEvents();
                 }            
@@ -266,6 +277,7 @@ var mpOptimizelyKit = (function (exports) {
             window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
         }
     };
+
     EventHandler.prototype.logPageView = function(event) {
         if (optimizelyDefinedEvents.pages[event.EventName]) {
             var optimizelyEvent = {

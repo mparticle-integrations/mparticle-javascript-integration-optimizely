@@ -70,6 +70,7 @@ EventHandler.prototype.logEvent = function(event) {
         window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
     }
 };
+
 EventHandler.prototype.logPageView = function(event) {
     if (optimizelyEvents.pages[event.EventName]) {
         var optimizelyEvent = {

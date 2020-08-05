@@ -29,32 +29,22 @@ var initialization = {
                 isInitialized = true;
                 loadEventsAndPages();
             }
+
             if (!window.optimizelyClientInstance) {
-                var loadScript = src => {
-                    return new Promise((resolve, reject) => {
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        script.src = src;
-                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(script);
-                    })
+                var instantiateFSClient = function() {
+                    var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                        datafile: window.optimizelyDatafile
+                    });
+
+                    optimizelyClientInstance.onReady().then(() => {
+                        isInitialized = true;
+                        loadFullStackEvents();
+                    });  
                 }
 
-                loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js')
-                    .then(() => loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js'))
-                    .then(() => {
-                        // Instantiate Optimizely Full Stack Client
-                        var optimizelyClientInstance = window.optimizelySdk.createInstance({
-                        datafile: window.optimizelyDatafile
-                        });
+                helpers.loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
+                helpers.loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js', instantiateFSClient));
 
-                        optimizelyClientInstance.onReady().then(() => {
-                            isInitialized = true;
-                            loadFullStackEvents();
-                        });                       
-                    })
-                    .catch(() => console.log('Something went wrong.'))
             } else {
                 isInitialized = true;
                 loadFullStackEvents();
