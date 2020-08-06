@@ -82,7 +82,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
             userAttributes = {},
             eventTags = {};
 
-            userAttributes = expandedEvent.EventAttributes || {};
+            eventTags = expandedEvent.EventAttributes || {};
 
             if (window.mParticle && window.mParticle.Identity) {
                 var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];

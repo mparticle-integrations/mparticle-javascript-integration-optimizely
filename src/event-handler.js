@@ -61,7 +61,7 @@ EventHandler.prototype.logEvent = function(event) {
         }
 
         if (event.EventAttributes) {
-            userAttributes = event.EventAttributes;
+            eventTags = event.EventAttributes;
         }
 
         if (event.CustomFlags && event.CustomFlags['OptimizelyFullStack.Value']) {
