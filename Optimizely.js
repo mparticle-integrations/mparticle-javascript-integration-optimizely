@@ -10,10 +10,6 @@ var mpOptimizelyKit = (function (exports) {
         events: {}
     };
 
-    var optimizelyFsDefinedEvents = {
-        events: {}
-    };
-
     function CommerceHandler(common) {
         this.common = common || {};
     }
@@ -23,265 +19,70 @@ var mpOptimizelyKit = (function (exports) {
             event
         );
         expandedEcommerceEvents.forEach(function(expandedEvent) {
-
-            if (optimizelyDefinedEvents.events[expandedEvent.EventName]) {
-
-                var optimizelyEvent = {
-                    type: 'event',
-                    eventName: event.EventName,
-                    tags: {}
-                };
-                optimizelyEvent.tags = expandedEvent.EventAttributes || {};
-                if (
-                    event.EventCategory ===
-                        mParticle.CommerceEventType.ProductPurchase ||
-                    event.EventCategory === mParticle.CommerceEventType.ProductRefund
-                ) {
-                    if (expandedEvent.EventName.indexOf('Total') > -1) {
-                        if (
-                            event.CustomFlags &&
-                            event.CustomFlags['Optimizely.EventName']
-                        ) {
-                            optimizelyEvent.eventName =
-                                event.CustomFlags['Optimizely.EventName'];
-                        } else {
-                            optimizelyEvent.eventName = expandedEvent.EventName;
-                        }
-                        // Overall purchase event
-                        if (
-                            expandedEvent.EventAttributes &&
-                            expandedEvent.EventAttributes['Total Amount']
-                        ) {
-                            optimizelyEvent.tags.revenue =
-                                expandedEvent.EventAttributes['Total Amount'] * 100;
-                        }
-                        // other individual product events should not have revenue tags
-                        // which are added via the expandCommerceEvent method above
-                    } else {
-                        optimizelyEvent.eventName = expandedEvent.EventName;
-                        if (optimizelyEvent.tags.revenue) {
-                            delete optimizelyEvent.tags.revenue;
-                        }
-                        if (optimizelyEvent.tags.Revenue) {
-                            delete optimizelyEvent.tags.Revenue;
-                        }
-                    }
-                } else {
-                    optimizelyEvent.eventName = expandedEvent.EventName;
+            var optimizelyEvent = {
+                type: 'event',
+                eventName: event.EventName,
+                tags: {}
+            };
+            optimizelyEvent.tags = expandedEvent.EventAttributes || {};
+            if (
+                event.EventCategory ===
+                    mParticle.CommerceEventType.ProductPurchase ||
+                event.EventCategory === mParticle.CommerceEventType.ProductRefund
+            ) {
+                if (expandedEvent.EventName.indexOf('Total') > -1) {
                     if (
                         event.CustomFlags &&
                         event.CustomFlags['Optimizely.EventName']
                     ) {
                         optimizelyEvent.eventName =
                             event.CustomFlags['Optimizely.EventName'];
-                    }
-                }
-
-                // Events that are added to the OptimizelyUI will be available on optimizelyEvents.events
-                // Ignore events not included in the Optimizely UI
-                if (optimizelyDefinedEvents.events[optimizelyEvent.eventName]) {
-                    var eventCopy = {};
-                    for (var key in optimizelyEvent) {
-                        eventCopy[key] = optimizelyEvent[key];
-                    }
-                    window['optimizely'].push(eventCopy);
-                }
-            }
-
-            if (optimizelyFsDefinedEvents.events[expandedEvent.EventName]) {
-                var eventKey = event.EventName,
-                userId,
-                userAttributes = {},
-                eventTags = {};
-
-                userAttributes = expandedEvent.EventAttributes || {};
-
-                if (window.mParticle && window.mParticle.Identity) {
-                    var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
-        
-                    switch(forwarderSettings.userIdField) {
-                        case 'customerId':
-                            userId = userIdentities["customerId"];
-                            break;
-                        case 'email':
-                            userId = userIdentities["email"];
-                            break;
-                        case 'mpid':
-                            userId = userIdentities["mpid"];
-                            break;
-                        case 'other':
-                            userId = userIdentities["other"];
-                            break;
-                        case 'other2':
-                            userId = userIdentities["other2"];
-                            break;
-                        case 'other3':
-                            userId = userIdentities["other3"];
-                            break;
-                        case 'other4':
-                            userId = userIdentities["other4"];
-                            break;
-                        default:
-                            userId = null;
-                    }
-                }
-
-                if (
-                    event.EventCategory ===
-                        mParticle.CommerceEventType.ProductPurchase ||
-                    event.EventCategory === mParticle.CommerceEventType.ProductRefund
-                ) {
-                    if (expandedEvent.EventName.indexOf('Total') > -1) {
-                            eventKey = expandedEvent.EventName;
-
-                        // Overall purchase event
-                        if (
-                            expandedEvent.EventAttributes &&
-                            expandedEvent.EventAttributes['Total Amount']
-                        ) {
-                            eventTags.revenue =
-                                expandedEvent.EventAttributes['Total Amount'] * 100;
-                        }
-                        // other individual product events should not have revenue tags
-                        // which are added via the expandCommerceEvent method above
                     } else {
-                        eventKey = expandedEvent.EventName;
-                        if (eventTags.revenue) {
-                            delete eventTags.revenue;
-                        }
+                        optimizelyEvent.eventName = expandedEvent.EventName;
                     }
+                    // Overall purchase event
+                    if (
+                        expandedEvent.EventAttributes &&
+                        expandedEvent.EventAttributes['Total Amount']
+                    ) {
+                        optimizelyEvent.tags.revenue =
+                            expandedEvent.EventAttributes['Total Amount'] * 100;
+                    }
+                    // other individual product events should not have revenue tags
+                    // which are added via the expandCommerceEvent method above
                 } else {
-                    eventKey = expandedEvent.EventName;
+                    optimizelyEvent.eventName = expandedEvent.EventName;
+                    if (optimizelyEvent.tags.revenue) {
+                        delete optimizelyEvent.tags.revenue;
+                    }
+                    if (optimizelyEvent.tags.Revenue) {
+                        delete optimizelyEvent.tags.Revenue;
+                    }
                 }
-
-                window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
+            } else {
+                optimizelyEvent.eventName = expandedEvent.EventName;
+                if (
+                    event.CustomFlags &&
+                    event.CustomFlags['Optimizely.EventName']
+                ) {
+                    optimizelyEvent.eventName =
+                        event.CustomFlags['Optimizely.EventName'];
+                }
             }
 
+            // Events that are added to the OptimizelyUI will be available on optimizelyEvents.events
+            // Ignore events not included in the Optimizely UI
+            if (optimizelyDefinedEvents.events[optimizelyEvent.eventName]) {
+                var eventCopy = {};
+                for (var key in optimizelyEvent) {
+                    eventCopy[key] = optimizelyEvent[key];
+                }
+                window['optimizely'].push(eventCopy);
+            }
         });
     };
 
     var commerceHandler = CommerceHandler;
-
-    var helpers = {
-        arrayToObject: function(array, keyField) {
-            var newObj = array.reduce(function(obj, item) {
-                obj[item[keyField]] = item;
-                return obj;
-            }, {});
-        return newObj;
-        },
-        loadScript: function(src, callback) {
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-          
-            // IE
-            if (script.readyState) {
-              script.onreadystatechange = function () {
-                if (script.readyState === 'loaded' || script.readyState === 'complete') {
-                  script.onreadystatechange = null;
-                  callback();
-                }
-              };
-            }
-            // other browsers
-            else {
-              script.onload = callback;
-            }
-          
-            script.src = src;
-            document.head.appendChild(script);
-        },
-    };
-
-    var helpers_1 = helpers;
-
-    var initialization = {
-        name: 'Optimizely',
-        moduleId: 54,
-        initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
-            if (!testMode) {
-                if (!window.optimizely) {
-                    var optimizelyScript = document.createElement('script');
-                    optimizelyScript.type = 'text/javascript';
-                    optimizelyScript.async = true;
-                    optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
-                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
-                    optimizelyScript.onload = function() {
-
-                        loadEventsAndPages();
-
-                        if (window['optimizely'] && eventQueue.length > 0) {
-                            for (var i = 0; i < eventQueue.length; i++) {
-                                processEvent(eventQueue[i]);
-                            }
-                            eventQueue = [];
-                        }
-                    };
-                } else {
-                    loadEventsAndPages();
-                }
-
-                if (!window.optimizelyClientInstance) {
-                    var instantiateFSClient = function() {
-                        var optimizelyClientInstance = window.optimizelySdk.createInstance({
-                            datafile: window.optimizelyDatafile
-                        });
-
-                        optimizelyClientInstance.onReady().then(() => {
-                            loadFullStackEvents();
-                        });  
-                    };
-
-                    helpers_1.loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
-                    helpers_1.loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js', instantiateFSClient));
-
-                } else {
-                    loadFullStackEvents();
-                }            
-            } else {
-                loadEventsAndPages();
-                loadFullStackEvents();
-            }
-        }
-    };
-
-    function loadEventsAndPages() {
-        var data,
-            events = {},
-            pages = {};
-
-        if (window.optimizely) {
-            data = window.optimizely.get('data');
-
-            for (var event in data.events) {
-                events[data.events[event].apiName] = 1;
-            }
-
-            for (var page in data.pages) {
-                pages[data.pages[page].apiName] = 1;
-            }
-
-            optimizelyDefinedEvents.events = events;
-            optimizelyDefinedEvents.pages = pages;
-        }
-    }
-
-    function loadFullStackEvents() {
-        var fullStackData,
-        fullStackEvents = {};
-
-        if (window.optimizelyDatafile) {
-            fullStackData = helpers_1.arrayToObject(window.optimizelyDatafile.events, "id");
-
-            for (var event in fullStackData) {
-                fullStackEvents[fullStackData[event].key] = 1;
-            }
-
-            optimizelyFsDefinedEvents.events = fullStackEvents;
-        }
-    }
-
-    var initialization_1 = initialization;
 
     function EventHandler(common) {
         this.common = common || {};
@@ -303,55 +104,7 @@ var mpOptimizelyKit = (function (exports) {
             }
             window['optimizely'].push(optimizelyEvent);
         }
-
-        if (optimizelyFsDefinedEvents.events[event.EventName]) {
-            var eventKey = event.EventName,
-                userId,
-                userAttributes = {},
-                eventTags = {};
-
-            if (window.mParticle && window.mParticle.Identity) {
-                var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
-
-                switch(forwarderSettings.userIdField) {
-                    case 'customerId':
-                        userId = userIdentities["customerId"];
-                        break;
-                    case 'email':
-                        userId = userIdentities["email"];
-                        break;
-                    case 'mpid':
-                        userId = userIdentities["mpid"];
-                        break;
-                    case 'other':
-                        userId = userIdentities["other"];
-                        break;
-                    case 'other2':
-                        userId = userIdentities["other2"];
-                        break;
-                    case 'other3':
-                        userId = userIdentities["other3"];
-                        break;
-                    case 'other4':
-                        userId = userIdentities["other4"];
-                        break;
-                    default:
-                        userId = null;
-                }
-            }
-
-            if (event.EventAttributes) {
-                userAttributes = event.EventAttributes;
-            }
-
-            if (event.CustomFlags && event.CustomFlags['OptimizelyFullStack.Value']) {
-                eventTags.value = event.CustomFlags['OptimizelyFullStack.Value'];
-            }
-
-            window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
-        }
     };
-
     EventHandler.prototype.logPageView = function(event) {
         if (optimizelyDefinedEvents.pages[event.EventName]) {
             var optimizelyEvent = {
@@ -423,6 +176,60 @@ var mpOptimizelyKit = (function (exports) {
     ) {};
 
     var identityHandler = IdentityHandler;
+
+    var initialization = {
+        name: 'Optimizely',
+        moduleId: 54,
+        initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
+            if (!testMode) {
+                if (!window.optimizely) {
+                    var optimizelyScript = document.createElement('script');
+                    optimizelyScript.type = 'text/javascript';
+                    optimizelyScript.async = true;
+                    optimizelyScript.src = 'https://cdn.optimizely.com/js/' + settings.projectId + '.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(optimizelyScript);
+                    optimizelyScript.onload = function() {
+
+                        loadEventsAndPages();
+
+                        if (window['optimizely'] && eventQueue.length > 0) {
+                            for (var i = 0; i < eventQueue.length; i++) {
+                                processEvent(eventQueue[i]);
+                            }
+                            eventQueue = [];
+                        }
+                    };
+                } else {
+                    loadEventsAndPages();
+                }
+            } else {
+                loadEventsAndPages();
+            }
+        }
+    };
+
+    function loadEventsAndPages() {
+        var data,
+            events = {},
+            pages = {};
+
+        if (window.optimizely) {
+            data = window.optimizely.get('data');
+
+            for (var event in data.events) {
+                events[data.events[event].apiName] = 1;
+            }
+
+            for (var page in data.pages) {
+                pages[data.pages[page].apiName] = 1;
+            }
+
+            optimizelyDefinedEvents.events = events;
+            optimizelyDefinedEvents.pages = pages;
+        }
+    }
+
+    var initialization_1 = initialization;
 
     var sessionHandler = {
         onSessionStart: function(event) {
