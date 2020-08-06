@@ -16,7 +16,7 @@ var initialization = {
                 optimizelyScript.onload = function() {
                     isInitialized = true;
 
-                    loadEventsAndPages();
+                    loadWebXEventsAndPages();
 
                     if (window['optimizely'] && eventQueue.length > 0) {
                         for (var i = 0; i < eventQueue.length; i++) {
@@ -27,10 +27,10 @@ var initialization = {
                 };
             } else {
                 isInitialized = true;
-                loadEventsAndPages();
+                loadWebXEventsAndPages();
             }
 
-            if (!window.optimizelyClientInstance) {
+            if (settings.sdkKey && !window.optimizelyClientInstance) {
                 var instantiateFSClient = function() {
                     var optimizelyClientInstance = window.optimizelySdk.createInstance({
                         datafile: window.optimizelyDatafile
@@ -51,13 +51,17 @@ var initialization = {
             }            
         } else {
             isInitialized = true;
-            loadEventsAndPages();
-            loadFullStackEvents();
+            if (settings.projectId) {
+                loadWebXEventsAndPages();
+            }
+            if (settings.sdkKey) {
+                loadFullStackEvents();
+            }
         }
     }
 };
 
-function loadEventsAndPages() {
+function loadWebXEventsAndPages() {
     var data,
         events = {},
         pages = {};

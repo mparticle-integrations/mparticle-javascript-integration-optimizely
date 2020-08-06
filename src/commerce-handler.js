@@ -75,7 +75,8 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
             }
         }
 
-        if (optimizelyFullStackEvents.events[expandedEvent.EventName]) {
+        // if optimizely full stack is being used
+        if (window.optimizelyClientInstance) {
             var eventKey = event.EventName,
             userId,
             userAttributes = {},

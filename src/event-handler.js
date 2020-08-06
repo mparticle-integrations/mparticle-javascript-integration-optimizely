@@ -1,6 +1,5 @@
 var optimizelyEvents = require('./optimizely-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
-const { initForwarder } = require('./initialization');
 
 function EventHandler(common) {
     this.common = common || {};
@@ -23,7 +22,8 @@ EventHandler.prototype.logEvent = function(event) {
         window['optimizely'].push(optimizelyEvent);
     }
 
-    if (optimizelyFullStackEvents.events[event.EventName]) {
+    // if optimizely full stack is being used
+    if (window.optimizelyClientInstance) {
         var eventKey = event.EventName,
             userId,
             userAttributes = {},
@@ -55,6 +55,7 @@ EventHandler.prototype.logEvent = function(event) {
                     userId = userIdentities["other4"];
                     break;
                 default:
+                    // this should never hit, since a user is required to select from a userId type from the userIdField dropdown
                     userId = null;
             }
         }
