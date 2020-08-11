@@ -26,13 +26,13 @@ EventHandler.prototype.logEvent = function(event) {
     if (window.optimizelyClientInstance) {
         var eventKey = event.EventName,
             userId,
-            userAttributes = {},
+            userAttributes = this.common.userAttributes,
             eventTags = {};
 
         if (window.mParticle && window.mParticle.Identity) {
             var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
 
-            switch(forwarderSettings.userIdField) {
+            switch(this.forwarderSettings.userIdField) {
                 case 'customerId':
                     userId = userIdentities["customerId"];
                     break;

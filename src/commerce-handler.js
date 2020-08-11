@@ -77,69 +77,71 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
 
         // if optimizely full stack is being used
         if (window.optimizelyClientInstance) {
-            var eventKey = event.EventName,
-            userId,
-            userAttributes = {},
-            eventTags = {};
+            if (optimizelyFullStackEvents.events[expandedEvent.EventName]) {
+                var eventKey = event.EventName,
+                userId,
+                userAttributes = this.common.userAttributes,
+                eventTags = {};
 
-            eventTags = expandedEvent.EventAttributes || {};
+                eventTags = expandedEvent.EventAttributes || {};
 
-            if (window.mParticle && window.mParticle.Identity) {
-                var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
-    
-                switch(forwarderSettings.userIdField) {
-                    case 'customerId':
-                        userId = userIdentities["customerId"];
-                        break;
-                    case 'email':
-                        userId = userIdentities["email"];
-                        break;
-                    case 'mpid':
-                        userId = userIdentities["mpid"];
-                        break;
-                    case 'other':
-                        userId = userIdentities["other"];
-                        break;
-                    case 'other2':
-                        userId = userIdentities["other2"];
-                        break;
-                    case 'other3':
-                        userId = userIdentities["other3"];
-                        break;
-                    case 'other4':
-                        userId = userIdentities["other4"];
-                        break;
-                    default:
-                        userId = null;
-                }
-            }
-
-            if (
-                event.EventCategory ===
-                    mParticle.CommerceEventType.ProductPurchase ||
-                event.EventCategory === mParticle.CommerceEventType.ProductRefund
-            ) {
-                if (expandedEvent.EventName.indexOf('Total') > -1) {
-                        eventKey = expandedEvent.EventName;
-
-                    // Overall purchase event
-                    if (
-                        expandedEvent.EventAttributes &&
-                        expandedEvent.EventAttributes['Total Amount']
-                    ) {
-                        eventTags.revenue =
-                            expandedEvent.EventAttributes['Total Amount'] * 100;
+                if (window.mParticle && window.mParticle.Identity) {
+                    var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
+        
+                    switch(this.forwarderSettings.userIdField) {
+                        case 'customerId':
+                            userId = userIdentities["customerId"];
+                            break;
+                        case 'email':
+                            userId = userIdentities["email"];
+                            break;
+                        case 'mpid':
+                            userId = userIdentities["mpid"];
+                            break;
+                        case 'other':
+                            userId = userIdentities["other"];
+                            break;
+                        case 'other2':
+                            userId = userIdentities["other2"];
+                            break;
+                        case 'other3':
+                            userId = userIdentities["other3"];
+                            break;
+                        case 'other4':
+                            userId = userIdentities["other4"];
+                            break;
+                        default:
+                            userId = null;
                     }
-                    // other individual product events should not have revenue tags
-                    // which are added via the expandCommerceEvent method above
+                }
+
+                if (
+                    event.EventCategory ===
+                        mParticle.CommerceEventType.ProductPurchase ||
+                    event.EventCategory === mParticle.CommerceEventType.ProductRefund
+                ) {
+                    if (expandedEvent.EventName.indexOf('Total') > -1) {
+                            eventKey = expandedEvent.EventName;
+
+                        // Overall purchase event
+                        if (
+                            expandedEvent.EventAttributes &&
+                            expandedEvent.EventAttributes['Total Amount']
+                        ) {
+                            eventTags.revenue =
+                                expandedEvent.EventAttributes['Total Amount'] * 100;
+                        }
+                        // other individual product events should not have revenue tags
+                        // which are added via the expandCommerceEvent method above
+                    } else {
+                        eventKey = expandedEvent.EventName;
+                        if (eventTags.revenue) {
+                            delete eventTags.revenue;
+                        }
+                    }
                 } else {
                     eventKey = expandedEvent.EventName;
-                    if (eventTags.revenue) {
-                        delete eventTags.revenue;
-                    }
                 }
-            } else {
-                eventKey = expandedEvent.EventName;
             }
 
             window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
