@@ -5,8 +5,7 @@ var helpers = require('./helpers');
 var initialization = {
     name: 'Optimizely',
     moduleId: 54,
-    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized,
-                            common, appVersion, appName, customFlags, clientId) {
+    initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized, common, appVersion, appName, customFlags, clientId) {
         if (!testMode) {
             if (!window.optimizely && !settings.useFullStack) {
                 var optimizelyScript = document.createElement('script');
@@ -32,16 +31,16 @@ var initialization = {
             }
 
             if (!window.optimizelyClientInstance && settings.useFullStack) {
-                var errorHandler = {};
+                var errorHandler = function() {};
 
-                if (customFlags['OptimizelyFullStack.ErrorHandler']) {
+                if (customFlags && customFlags['OptimizelyFullStack.ErrorHandler']) {
                     errorHandler = customFlags['OptimizelyFullStack.ErrorHandler'];
                 }
-                
+
                 var instantiateFSClient = function() {
                     var optimizelyClientInstance = window.optimizelySdk.createInstance({
                         datafile: window.optimizelyDatafile,
-                        errorHandler: errorHandler
+                        errorHandler: {handleError: errorHandler}
                     });
 
                     optimizelyClientInstance.onReady().then(() => {
@@ -93,6 +92,7 @@ function loadWebXEventsAndPages() {
 function loadFullStackEvents() {
     var fullStackData,
     fullStackEvents = {};
+
 
     if (window.optimizelyDatafile) {
         fullStackData = helpers.arrayToObject(window.optimizelyDatafile.events, "id");
