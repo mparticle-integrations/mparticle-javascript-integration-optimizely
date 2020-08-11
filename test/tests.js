@@ -441,7 +441,7 @@ describe('Optimizely Forwarder', function () {
               }
             // Include any specific settings that are required for initializing your SDK here
             var sdkSettings = {
-                sdkKey: 'LYLgZJqZzFKd5SaNLcQRc'
+                projectId: 'LYLgZJqZzFKd5SaNLcQRc'
             };
             // You may require userAttributes or userIdentities to be passed into initialization
             var userAttributes = {
@@ -476,7 +476,7 @@ describe('Optimizely Forwarder', function () {
                 }
             });
 
-            window.optimizelyDatafile.events.length.should.equal(2);
+            window.optimizelyDatafile.events.length.should.equal(2);       
             done();
         });
     });
