@@ -1,4 +1,4 @@
-var optimizelyEvents = require('./optimizely-defined-events');
+var optimizelyWebXEvents = require('./optimizely-x-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
 
 function EventHandler(common) {
@@ -6,20 +6,20 @@ function EventHandler(common) {
 }
 
 EventHandler.prototype.logEvent = function(event) {
-    if (optimizelyEvents.events[event.EventName]) {
-        var optimizelyEvent = {
+    if (optimizelyWebXEvents.events[event.EventName]) {
+        var optimizelyWebXEvent = {
             type: 'event',
             eventName: event.EventName
         };
 
         if (event.EventAttributes) {
-            optimizelyEvent.tags = event.EventAttributes;
+            optimizelyWebXEvent.tags = event.EventAttributes;
         }
 
         if (event.CustomFlags && event.CustomFlags['Optimizely.Value']) {
-            optimizelyEvent.tags.value = event.CustomFlags['Optimizely.Value'];
+            optimizelyWebXEvent.tags.value = event.CustomFlags['Optimizely.Value'];
         }
-        window['optimizely'].push(optimizelyEvent);
+        window['optimizely'].push(optimizelyWebXEvent);
     }
 
     // if optimizely full stack is being used
@@ -73,16 +73,16 @@ EventHandler.prototype.logEvent = function(event) {
 };
 
 EventHandler.prototype.logPageView = function(event) {
-    if (optimizelyEvents.pages[event.EventName]) {
-        var optimizelyEvent = {
+    if (optimizelyWebXEvents.pages[event.EventName]) {
+        var optimizelyWebXEvent = {
             type: 'page',
             pageName: event.EventName
         };
 
         if (event.EventAttributes) {
-            optimizelyEvent.tags = event.EventAttributes;
+            optimizelyWebXEvent.tags = event.EventAttributes;
         }
-        window['optimizely'].push(optimizelyEvent);
+        window['optimizely'].push(optimizelyWebXEvent);
     }
 };
 

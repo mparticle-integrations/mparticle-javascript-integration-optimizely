@@ -1,4 +1,4 @@
-var optimizelyEvents = require('./optimizely-defined-events');
+var optimizelyWebXEvents = require('./optimizely-x-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
 var helpers = require('./helpers');
 
@@ -77,8 +77,8 @@ function loadWebXEventsAndPages() {
             pages[data.pages[page].apiName] = 1;
         }
 
-        optimizelyEvents.events = events;
-        optimizelyEvents.pages = pages;
+        optimizelyWebXEvents.events = events;
+        optimizelyWebXEvents.pages = pages;
     }
 }
 

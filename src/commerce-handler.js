@@ -1,4 +1,4 @@
-var optimizelyEvents = require('./optimizely-defined-events');
+var optimizelyWebXEvents = require('./optimizely-x-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
 
 function CommerceHandler(common) {
@@ -11,14 +11,14 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
     );
     expandedEcommerceEvents.forEach(function(expandedEvent) {
 
-        if (optimizelyEvents.events[expandedEvent.EventName]) {
+        if (optimizelyWebXEvents.events[expandedEvent.EventName]) {
 
-            var optimizelyEvent = {
+            var optimizelyWebXEvent = {
                 type: 'event',
                 eventName: event.EventName,
                 tags: {}
             };
-            optimizelyEvent.tags = expandedEvent.EventAttributes || {};
+            optimizelyWebXEvent.tags = expandedEvent.EventAttributes || {};
             if (
                 event.EventCategory ===
                     mParticle.CommerceEventType.ProductPurchase ||
@@ -29,47 +29,47 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                         event.CustomFlags &&
                         event.CustomFlags['Optimizely.EventName']
                     ) {
-                        optimizelyEvent.eventName =
+                        optimizelyWebXEvent.eventName =
                             event.CustomFlags['Optimizely.EventName'];
                     } else {
-                        optimizelyEvent.eventName = expandedEvent.EventName;
+                        optimizelyWebXEvent.eventName = expandedEvent.EventName;
                     }
                     // Overall purchase event
                     if (
                         expandedEvent.EventAttributes &&
                         expandedEvent.EventAttributes['Total Amount']
                     ) {
-                        optimizelyEvent.tags.revenue =
+                        optimizelyWebXEvent.tags.revenue =
                             expandedEvent.EventAttributes['Total Amount'] * 100;
                     }
                     // other individual product events should not have revenue tags
                     // which are added via the expandCommerceEvent method above
                 } else {
-                    optimizelyEvent.eventName = expandedEvent.EventName;
-                    if (optimizelyEvent.tags.revenue) {
-                        delete optimizelyEvent.tags.revenue;
+                    optimizelyWebXEvent.eventName = expandedEvent.EventName;
+                    if (optimizelyWebXEvent.tags.revenue) {
+                        delete optimizelyWebXEvent.tags.revenue;
                     }
-                    if (optimizelyEvent.tags.Revenue) {
-                        delete optimizelyEvent.tags.Revenue;
+                    if (optimizelyWebXEvent.tags.Revenue) {
+                        delete optimizelyWebXEvent.tags.Revenue;
                     }
                 }
             } else {
-                optimizelyEvent.eventName = expandedEvent.EventName;
+                optimizelyWebXEvent.eventName = expandedEvent.EventName;
                 if (
                     event.CustomFlags &&
                     event.CustomFlags['Optimizely.EventName']
                 ) {
-                    optimizelyEvent.eventName =
+                    optimizelyWebXEvent.eventName =
                         event.CustomFlags['Optimizely.EventName'];
                 }
             }
 
-            // Events that are added to the OptimizelyUI will be available on optimizelyEvents.events
+            // Events that are added to the OptimizelyUI will be available on optimizelyWebXEvents.events
             // Ignore events not included in the Optimizely UI
-            if (optimizelyEvents.events[optimizelyEvent.eventName]) {
+            if (optimizelyWebXEvents.events[optimizelyWebXEvent.eventName]) {
                 var eventCopy = {};
-                for (var key in optimizelyEvent) {
-                    eventCopy[key] = optimizelyEvent[key];
+                for (var key in optimizelyWebXEvent) {
+                    eventCopy[key] = optimizelyWebXEvent[key];
                 }
                 window['optimizely'].push(eventCopy);
             }
