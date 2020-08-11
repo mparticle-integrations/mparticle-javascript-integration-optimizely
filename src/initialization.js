@@ -7,7 +7,7 @@ var initialization = {
     moduleId: 54,
     initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized) {
         if (!testMode) {
-            if (!window.optimizely) {
+            if (!window.optimizely && !settings.useFullStack) {
                 var optimizelyScript = document.createElement('script');
                 optimizelyScript.type = 'text/javascript';
                 optimizelyScript.async = true;
@@ -30,7 +30,7 @@ var initialization = {
                 loadWebXEventsAndPages();
             }
 
-            if (settings.sdkKey && !window.optimizelyClientInstance) {
+            if (!window.optimizelyClientInstance && settings.useFullStack) {
                 var instantiateFSClient = function() {
                     var optimizelyClientInstance = window.optimizelySdk.createInstance({
                         datafile: window.optimizelyDatafile
@@ -43,7 +43,7 @@ var initialization = {
                 }
 
                 helpers.loadScript('https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js', 
-                helpers.loadScript('https://cdn.optimizely.com/datafiles/' + settings.sdkKey + '.json/tag.js', instantiateFSClient));
+                helpers.loadScript('https://cdn.optimizely.com/datafiles/' + settings.projectId + '.json/tag.js', instantiateFSClient));
 
             } else {
                 isInitialized = true;
@@ -51,10 +51,10 @@ var initialization = {
             }            
         } else {
             isInitialized = true;
-            if (settings.projectId) {
+            if (!settings.useFullStack) {
                 loadWebXEventsAndPages();
             }
-            if (settings.sdkKey) {
+            if (settings.useFullStack) {
                 loadFullStackEvents();
             }
         }
