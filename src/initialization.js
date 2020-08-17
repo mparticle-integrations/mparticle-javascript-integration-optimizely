@@ -44,7 +44,7 @@ var initialization = {
                         errorHandler: {handleError: errorHandler}
                     });
 
-                    window.optimizelyClientInstance.onReady().then(() => {
+                    window.optimizelyClientInstance.onReady().then(function(){
                         isInitialized = true;
                         loadFullStackEvents();
                     });  

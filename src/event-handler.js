@@ -23,7 +23,7 @@ EventHandler.prototype.logEvent = function(event) {
     }
 
     // if optimizely full stack is being used
-    if (window.optimizelyClientInstance) {
+    if (window.optimizelyClientInstance && optimizelyFullStackEvents.events[event.EventName]) {
         var self = this;
         var eventKey = event.EventName,
             userId,
@@ -54,6 +54,9 @@ EventHandler.prototype.logEvent = function(event) {
                     break;
                 case 'other4':
                     userId = userIdentities["other4"];
+                    break;
+                case 'deviceApplicationStamp':
+                    userId = window.mParticle.getDeviceId();
                     break;
                 default:
                     // this should never hit, since a user is required to select from a userId type from the userIdField dropdown

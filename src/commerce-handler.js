@@ -111,6 +111,9 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                         case 'other4':
                             userId = userIdentities["other4"];
                             break;
+                        case 'deviceApplicationStamp':
+                            userId = window.mParticle.getDeviceId();
+                            break;
                         default:
                             userId = null;
                     }
