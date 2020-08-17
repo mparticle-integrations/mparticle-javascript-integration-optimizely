@@ -114,6 +114,10 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                         default:
                             userId = null;
                     }
+
+                    if (!userId) {
+                        userId = window.mParticle.getDeviceId();
+                    }
                 }
 
                 if (

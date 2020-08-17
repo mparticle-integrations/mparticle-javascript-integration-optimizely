@@ -59,6 +59,10 @@ EventHandler.prototype.logEvent = function(event) {
                     // this should never hit, since a user is required to select from a userId type from the userIdField dropdown
                     userId = null;
             }
+
+            if (!userId) {
+                userId = window.mParticle.getDeviceId();
+            }
         }
 
         if (event.EventAttributes) {
