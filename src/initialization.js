@@ -31,6 +31,7 @@ var initialization = {
             }
 
             if (!window.optimizelyClientInstance && settings.useFullStack) {
+                common.userIdField = settings.userIdField;
                 var errorHandler = function() {};
 
                 if (customFlags && customFlags['OptimizelyFullStack.ErrorHandler']) {

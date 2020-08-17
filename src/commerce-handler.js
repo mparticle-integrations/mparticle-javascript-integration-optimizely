@@ -6,6 +6,7 @@ function CommerceHandler(common) {
 }
 
 CommerceHandler.prototype.logCommerceEvent = function(event) {
+    var self = this;
     var expandedEcommerceEvents = mParticle.eCommerce.expandCommerceEvent(
         event
     );
@@ -80,7 +81,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
             if (optimizelyFullStackEvents.events[expandedEvent.EventName]) {
                 var eventKey = event.EventName,
                 userId,
-                userAttributes = this.common.userAttributes,
+                userAttributes = self.common.userAttributes,
                 eventTags = {};
 
                 eventTags = expandedEvent.EventAttributes || {};
@@ -88,7 +89,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                 if (window.mParticle && window.mParticle.Identity) {
                     var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
         
-                    switch(this.forwarderSettings.userIdField) {
+                    switch(self.common.userIdField) {
                         case 'customerId':
                             userId = userIdentities["customerId"];
                             break;

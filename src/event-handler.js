@@ -24,15 +24,16 @@ EventHandler.prototype.logEvent = function(event) {
 
     // if optimizely full stack is being used
     if (window.optimizelyClientInstance) {
+        var self = this;
         var eventKey = event.EventName,
             userId,
-            userAttributes = this.common.userAttributes,
+            userAttributes = self.common.userAttributes,
             eventTags = {};
 
         if (window.mParticle && window.mParticle.Identity) {
             var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
 
-            switch(this.forwarderSettings.userIdField) {
+            switch(self.common.userIdField) {
                 case 'customerId':
                     userId = userIdentities["customerId"];
                     break;
