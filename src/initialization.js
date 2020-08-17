@@ -39,12 +39,12 @@ var initialization = {
                 }
 
                 var instantiateFSClient = function() {
-                    var optimizelyClientInstance = window.optimizelySdk.createInstance({
+                    window.optimizelyClientInstance = window.optimizelySdk.createInstance({
                         datafile: window.optimizelyDatafile,
                         errorHandler: {handleError: errorHandler}
                     });
 
-                    optimizelyClientInstance.onReady().then(() => {
+                    window.optimizelyClientInstance.onReady().then(() => {
                         isInitialized = true;
                         loadFullStackEvents();
                     });  
