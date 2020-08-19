@@ -225,7 +225,7 @@ describe('Optimizely Forwarder', function () {
             mParticle.forwarder.process({
                 EventName: 'eCommerce - Purchase',
                 EventDataType: MessageType.Commerce,
-                EventCategory: EventType.ProductPurchase,
+                EventCategory: CommerceEventType.ProductPurchase,
                 ProductAction: {
                     ProductActionType: ProductActionType.Purchase,
                     ProductList: [
@@ -259,7 +259,7 @@ describe('Optimizely Forwarder', function () {
             mParticle.forwarder.process({
                 EventName: 'eCommerce - AddToCart',
                 EventDataType: MessageType.Commerce,
-                EventCategory: EventType.ProductPurchase,
+                EventCategory: CommerceEventType.ProductPurchase,
                 ProductAction: {
                     ProductActionType: ProductActionType.AddToCart,
                     ProductList: [
@@ -304,7 +304,7 @@ describe('Optimizely Forwarder', function () {
                     'Optimizely.EventName': 'RevenueTestEventName'
                 },
                 EventDataType: MessageType.Commerce,
-                EventCategory: EventType.ProductPurchase,
+                EventCategory: CommerceEventType.ProductPurchase,
                 ProductAction: {
                     ProductActionType: ProductActionType.Purchase,
                     ProductList: [
@@ -462,7 +462,17 @@ describe('Optimizely Forwarder', function () {
                     "experimentIds": [],
                     "id": "18391220198",
                     "key": "eventKey1"
-                  }
+                  },
+                   {
+                        'experimentIds': [],
+                        'id': 'anotherid',
+                        'key': 'eCommerce - purchase - Total',
+                    },
+                   {
+                        'experimentIds': [],
+                        'id': 'anotherid2',
+                        'key': 'eCommerce - purchase - Item',
+                    },
                 ]
               }
             // Include any specific settings that are required for initializing your SDK here
@@ -605,7 +615,7 @@ describe('Optimizely Forwarder', function () {
                     'OptimizelyFullStack.EventName': 'eventKey2'
                 },
                 EventDataType: MessageType.Commerce,
-                EventCategory: EventType.ProductPurchase,
+                EventCategory: CommerceEventType.ProductPurchase,
                 ProductAction: {
                     ProductActionType: ProductActionType.Purchase,
                     ProductList: [
@@ -633,6 +643,47 @@ describe('Optimizely Forwarder', function () {
             window.fullStackEventQueue[0].eventTags.revenue.should.equal(45000);
             window.fullStackEventQueue[1].eventTags.Id.should.equal('12345');
             window.fullStackEventQueue[1].eventTags.Brand.should.equal('iPhone 6');
+            window.fullStackEventQueue[1].eventTags.Variant.should.equal('6');
+            Should(window.fullStackEventQueue[1].eventTags.revenue).not.be.ok();
+            done();
+        });
+
+        it('should track commerce events if the eventKeys are named after mParticle commerve event names in the dataFile and no custom flags are passed', function(done) {
+            mParticle.forwarder.process({
+                EventName: 'eCommerce - Purchase',
+                CustomFlags: {},
+                EventDataType: MessageType.Commerce,
+                EventCategory: CommerceEventType.ProductPurchase,
+                ProductAction: {
+                    ProductActionType: ProductActionType.Purchase,
+                    ProductList: [
+                        {
+                            Sku: '12345',
+                            Category: 'Phones',
+                            Brand: 'iPhone 6',
+                            Variant: '6',
+                            Price: 400,
+                            TotalAmount: 400,
+                            CouponCode: 'coupon-code',
+                            Quantity: 1,
+                        },
+                    ],
+                    TransactionId: 123,
+                    Affiliation: 'my-affiliation',
+                    TotalAmount: 450,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: null,
+                },
+            });
+
+            window.fullStackEventQueue[0].eventKey.should.equal('eCommerce - purchase - Total');
+            window.fullStackEventQueue[0].eventTags.revenue.should.equal(45000);
+            window.fullStackEventQueue[1].eventKey.should.equal('eCommerce - purchase - Item');
+            window.fullStackEventQueue[1].eventTags.Id.should.equal('12345');
+            window.fullStackEventQueue[1].eventTags.Brand.should.equal(
+                'iPhone 6'
+            );
             window.fullStackEventQueue[1].eventTags.Variant.should.equal('6');
             Should(window.fullStackEventQueue[1].eventTags.revenue).not.be.ok();
             done();
