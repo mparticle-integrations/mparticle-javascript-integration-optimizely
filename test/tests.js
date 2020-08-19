@@ -113,8 +113,9 @@ describe('Optimizely Forwarder', function () {
                 };
             };
         },
-
+        // We mock Identity in Full Stack only because FS includes Identity Calls, whereas Web X doesn't
         OptimizelyFullStackMockForwarder = function() {
+            window.fullStackEventQueue = [];
             window.mParticle.Identity = {
                 getCurrentUser: function() {
                     return {
@@ -134,12 +135,13 @@ describe('Optimizely Forwarder', function () {
                  }
             },
             this.track = function(eventKey, userId, attributes, eventTags) {
-                window.optimizelyFSTrackedEvent = {
+                var optimizelyFSTrackedEvent = {
                     eventKey: eventKey,
                     userId: userId,
                     userAttributes: attributes,
                     eventTags: eventTags
                 };
+                window.fullStackEventQueue.push(optimizelyFSTrackedEvent);
             }; 
         };        
 
@@ -497,11 +499,11 @@ describe('Optimizely Forwarder', function () {
                 },
             });
 
-            window.optimizelyFSTrackedEvent.eventKey.should.equal('eventKey1');
-            window.optimizelyFSTrackedEvent.eventTags.value.should.equal(200);
-            window.optimizelyFSTrackedEvent.eventTags.category.should.equal('category');
-            window.optimizelyFSTrackedEvent.userAttributes.color.should.equal('green');
-            window.optimizelyFSTrackedEvent.userId.should.equal('123456');
+            window.fullStackEventQueue[0].eventKey.should.equal('eventKey1');
+            window.fullStackEventQueue[0].eventTags.value.should.equal(200);
+            window.fullStackEventQueue[0].eventTags.category.should.equal('category');
+            window.fullStackEventQueue[0].userAttributes.color.should.equal('green');
+            window.fullStackEventQueue[0].userId.should.equal('123456');
             done();
         });
 
@@ -515,7 +517,7 @@ describe('Optimizely Forwarder', function () {
                 },
             });
 
-            Object.keys(window.optimizelyFSTrackedEvent).length.should.equal(0);
+            window.fullStackEventQueue.length.should.equal(0);
             done();
         });
 
@@ -532,10 +534,50 @@ describe('Optimizely Forwarder', function () {
                 }
             });
 
-            window.optimizelyFSTrackedEvent.eventKey.should.equal('eventKey1');
-            window.optimizelyFSTrackedEvent.eventTags.label.should.equal('label');
-            window.optimizelyFSTrackedEvent.eventTags.value.should.equal(5);
-            window.optimizelyFSTrackedEvent.eventTags.category.should.equal('category');
+            window.fullStackEventQueue[0].eventKey.should.equal('eventKey1');
+            window.fullStackEventQueue[0].eventTags.label.should.equal('label');
+            window.fullStackEventQueue[0].eventTags.value.should.equal(5);
+            window.fullStackEventQueue[0].eventTags.category.should.equal('category');
+            done();
+        });
+
+        it('should track a product purchase commerce event with custom name if customFlag of OptimizelyFullStack.EventName is passed', function(done) {
+            mParticle.forwarder.process({
+                EventName: 'eCommerce - Purchase',
+                CustomFlags: {
+                    'OptimizelyFullStack.EventName': 'eventKey2'
+                },
+                EventDataType: MessageType.Commerce,
+                EventCategory: EventType.ProductPurchase,
+                ProductAction: {
+                    ProductActionType: ProductActionType.Purchase,
+                    ProductList: [
+                        {
+                            Sku: '12345',
+                            Category: 'Phones',
+                            Brand: 'iPhone 6',
+                            Variant: '6',
+                            Price: 400,
+                            TotalAmount: 400,
+                            CouponCode: 'coupon-code',
+                            Quantity: 1
+                        }
+                    ],
+                    TransactionId: 123,
+                    Affiliation: 'my-affiliation',
+                    TotalAmount: 450,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: null
+                }
+            });
+
+            window.fullStackEventQueue[0].eventKey.should.equal('eventKey2');
+            window.fullStackEventQueue[0].eventTags.revenue.should.equal(45000);
+            window.fullStackEventQueue[1].eventTags.Id.should.equal('12345');
+            window.fullStackEventQueue[1].eventTags.Brand.should.equal('iPhone 6');
+            window.fullStackEventQueue[1].eventTags.Variant.should.equal('6');
+            Should(window.fullStackEventQueue[1].eventTags.revenue).not.be.ok();
             done();
         });
     });
