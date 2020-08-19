@@ -120,13 +120,13 @@ describe('Optimizely Forwarder', function () {
                 getCurrentUser: function() {
                     return {
                         getUserIdentities: function() {
-                           return {userIdentities: {other3: '123456'}}
+                           return {userIdentities: {other3: '123456'}};
                         },
                         getAllUserAttributes: function() {
                             return {};
                         },
                         getMPID: function() {
-                            return "";
+                            return '';
                         },
                         getConsentState: function() {
                             return {};
@@ -142,7 +142,7 @@ describe('Optimizely Forwarder', function () {
                     eventTags: eventTags
                 };
                 window.fullStackEventQueue.push(optimizelyFSTrackedEvent);
-            }; 
+            };
         };        
 
     before(function () {
@@ -538,6 +538,41 @@ describe('Optimizely Forwarder', function () {
             window.fullStackEventQueue[0].eventTags.label.should.equal('label');
             window.fullStackEventQueue[0].eventTags.value.should.equal(5);
             window.fullStackEventQueue[0].eventTags.category.should.equal('category');
+            done();
+        });
+
+        it('should set userId to deviceId on an event if userId doesnt exist', function(done) {
+            var sdkSettings = {
+                projectId: 'LYLgZJqZzFKd5SaNLcQRc',
+                useFullStack: true,
+            };
+            var userAttributes = {
+                color: 'green'
+            };
+            var userIdentities = [{
+                Identity: 'customerId',
+                Type: IdentityType.CustomerId
+            }, {
+                Identity: 'email',
+                Type: IdentityType.Email
+            }, {
+                Identity: 'facebook',
+                Type: IdentityType.Facebook
+            }];            
+
+            mParticle.forwarder.init(sdkSettings, reportService.cb, true, null, userAttributes, userIdentities);
+
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventName: 'eventKey1',
+                EventAttributes: {
+                    label: 'label',
+                    category: 'category'
+                }
+            });
+
+            window.fullStackEventQueue[0].eventKey.should.equal('eventKey1');
+            window.fullStackEventQueue[0].userId.should.equal(window.mParticle.getDeviceId());
             done();
         });
 
