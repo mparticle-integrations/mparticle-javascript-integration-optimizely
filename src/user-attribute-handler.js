@@ -1,5 +1,5 @@
 function UserAttributeHandler(common) {
-    this.common = common = {};
+    this.common = common || {};
 }
 
 UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
@@ -27,7 +27,8 @@ UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
         });
     }
     if (window.optimizelyClientInstance) {
-        this.common.userAttributes[key] = value;
+        var self = this;
+        self.common.userAttributes[key] = value;
     }    
 };
 

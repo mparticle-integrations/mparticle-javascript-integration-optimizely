@@ -541,6 +541,28 @@ describe('Optimizely Forwarder', function () {
             done();
         });
 
+        it('should set and remove user attributes properly', function(done) {
+
+            mParticle.forwarder.setUserAttribute('key', 'value');
+
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventName: 'eventKey1',
+                EventAttributes: {
+                    label: 'label',
+                    category: 'category'
+                }
+            });
+
+            window.fullStackEventQueue.length.should.equal(1);
+            window.fullStackEventQueue[0].userAttributes.key.should.equal('value');
+
+            mParticle.forwarder.removeUserAttribute('key');
+
+            (window.fullStackEventQueue[0].userAttributes.key === undefined).should.equal(true);
+            done();
+        });
+
         it('should set userId to deviceId on an event if userId doesnt exist', function(done) {
             var sdkSettings = {
                 projectId: 'LYLgZJqZzFKd5SaNLcQRc',
