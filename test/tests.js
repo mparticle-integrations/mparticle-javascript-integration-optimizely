@@ -497,11 +497,45 @@ describe('Optimizely Forwarder', function () {
                 },
             });
 
-            window.optimizelyFSTrackedEvent.eventKey.should.equal("eventKey1");
+            window.optimizelyFSTrackedEvent.eventKey.should.equal('eventKey1');
             window.optimizelyFSTrackedEvent.eventTags.value.should.equal(200);
             window.optimizelyFSTrackedEvent.eventTags.category.should.equal('category');
             window.optimizelyFSTrackedEvent.userAttributes.color.should.equal('green');
             window.optimizelyFSTrackedEvent.userId.should.equal('123456');
+            done();
+        });
+
+        it('should not track a custom event if it does not exist in the datafile', function(done) {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventName: 'invalidEventKey',
+                EventAttributes: {
+                    value: 200,
+                    category: 'category'
+                },
+            });
+
+            Object.keys(window.optimizelyFSTrackedEvent).length.should.equal(0);
+            done();
+        });
+
+        it('should track a value event to Optimizely Full Stack', function(done) {
+            mParticle.forwarder.process({
+                CustomFlags: {
+                    'OptimizelyFullStack.Value': 5
+                },
+                EventDataType: MessageType.PageEvent,
+                EventName: 'eventKey1',
+                EventAttributes: {
+                    label: 'label',
+                    category: 'category'
+                }
+            });
+
+            window.optimizelyFSTrackedEvent.eventKey.should.equal('eventKey1');
+            window.optimizelyFSTrackedEvent.eventTags.label.should.equal('label');
+            window.optimizelyFSTrackedEvent.eventTags.value.should.equal(5);
+            window.optimizelyFSTrackedEvent.eventTags.category.should.equal('category');
             done();
         });
     });
