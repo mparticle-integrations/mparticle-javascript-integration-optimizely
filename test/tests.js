@@ -112,12 +112,33 @@ describe('Optimizely Forwarder', function () {
                     }
                 };
             };
-        };
+        },
 
-        OptimizelyFullStackMockForwarder = function() {    
+        OptimizelyFullStackMockForwarder = function() {
+            window.mParticle.Identity = {
+                getCurrentUser: function() {
+                    return {
+                        getUserIdentities: function() {
+                           return {userIdentities: {other3: '123456'}}
+                        },
+                        getAllUserAttributes: function() {
+                            return {};
+                        },
+                        getMPID: function() {
+                            return "";
+                        },
+                        getConsentState: function() {
+                            return {};
+                        }
+                    }
+                 }
+            },
             this.track = function(eventKey, userId, attributes, eventTags) {
-                return {
-
+                window.optimizelyFSTrackedEvent = {
+                    eventKey: eventKey,
+                    userId: userId,
+                    userAttributes: attributes,
+                    eventTags: eventTags
                 };
             }; 
         };        
@@ -137,7 +158,8 @@ describe('Optimizely Forwarder', function () {
             window.optimizely = new OptimizelyMockForwarder();
             // Include any specific settings that is required for initializing your SDK here
             var sdkSettings = {
-                projectId: '123456'
+                projectId: '123456',
+                useFullStack: false
             };
             // You may require userAttributes or userIdentities to be passed into initialization
             var userAttributes = {
@@ -388,6 +410,8 @@ describe('Optimizely Forwarder', function () {
     // Optimizely Full Stack Tests
     describe('Full Stack', function () {
         beforeEach(function() {
+            window.optimizelyFSTrackedEvent = {};
+            window.optimizelyClientInstance = new OptimizelyFullStackMockForwarder();
             // Mock Optimizely Full Stack Datafile
             window.optimizelyDatafile =
             {
@@ -441,7 +465,9 @@ describe('Optimizely Forwarder', function () {
               }
             // Include any specific settings that are required for initializing your SDK here
             var sdkSettings = {
-                projectId: 'LYLgZJqZzFKd5SaNLcQRc'
+                projectId: 'LYLgZJqZzFKd5SaNLcQRc',
+                useFullStack: true,
+                userIdField: 'other3',
             };
             // You may require userAttributes or userIdentities to be passed into initialization
             var userAttributes = {
@@ -461,22 +487,21 @@ describe('Optimizely Forwarder', function () {
             mParticle.forwarder.init(sdkSettings, reportService.cb, true, null, userAttributes, userIdentities);
         });
 
-        it('should log a custom event', function(done) {
+        it('should track a custom event that exists in the datafile', function(done) {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageEvent,
                 EventName: 'eventKey1',
-                UserId: 'tkatz@mparticle.com',
                 EventAttributes: {
-                    label: 'label',
                     value: 200,
                     category: 'category'
                 },
-                CustomFlags: {
-
-                }
             });
 
-            window.optimizelyDatafile.events.length.should.equal(2);       
+            window.optimizelyFSTrackedEvent.eventKey.should.equal("eventKey1");
+            window.optimizelyFSTrackedEvent.eventTags.value.should.equal(200);
+            window.optimizelyFSTrackedEvent.eventTags.category.should.equal('category');
+            window.optimizelyFSTrackedEvent.userAttributes.color.should.equal('green');
+            window.optimizelyFSTrackedEvent.userId.should.equal('123456');
             done();
         });
     });
