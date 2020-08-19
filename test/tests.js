@@ -648,7 +648,7 @@ describe('Optimizely Forwarder', function () {
             done();
         });
 
-        it('should track commerce events if the eventKeys are named after mParticle commerve event names in the dataFile and no custom flags are passed', function(done) {
+        it('should track commerce events if the eventKeys are named after mParticle commerce event names in the dataFile and no custom flags are passed', function(done) {
             mParticle.forwarder.process({
                 EventName: 'eCommerce - Purchase',
                 CustomFlags: {},
