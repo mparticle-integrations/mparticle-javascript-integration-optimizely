@@ -80,10 +80,10 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
         // if optimizely full stack is being used
         if (window.optimizelyClientInstance) {
             if (optimizelyFullStackEvents.events[expandedEvent.EventName] || optimizelyFullStackEvents.events[event.CustomFlags['OptimizelyFullStack.EventName']]) {
-                var eventKey = event.EventName,
-                userId,
-                userAttributes = self.common.userAttributes,
-                eventTags = {};
+                var eventKey = expandedEvent.EventName,
+                    userId,
+                    userAttributes = self.common.userAttributes,
+                    eventTags = {};
 
                 eventTags = expandedEvent.EventAttributes || {};
 
