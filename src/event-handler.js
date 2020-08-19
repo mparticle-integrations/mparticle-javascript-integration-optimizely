@@ -31,8 +31,8 @@ EventHandler.prototype.logEvent = function(event) {
             eventTags = {};
 
         if (window.mParticle && window.mParticle.Identity) {
-            var userIdentities = window.mParticle.Identity.getCurrentUser().getUserIdentities()['userIdentites'];
-
+            var identities = window.mParticle.Identity.getCurrentUser().getUserIdentities();
+            var userIdentities = identities['userIdentities'];
             switch(self.common.userIdField) {
                 case 'customerId':
                     userId = userIdentities["customerId"];
