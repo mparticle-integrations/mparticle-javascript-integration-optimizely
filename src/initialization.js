@@ -32,6 +32,7 @@ var initialization = {
 
             if (!window.optimizelyClientInstance && settings.useFullStack) {
                 common.userIdField = settings.userIdField;
+                common.userAttributes = userAttributes;
                 var errorHandler = function() {};
 
                 if (customFlags && customFlags['OptimizelyFullStack.ErrorHandler']) {
@@ -63,6 +64,8 @@ var initialization = {
                 loadWebXEventsAndPages();
             }
             if (settings.useFullStack) {
+                common.userIdField = settings.userIdField;
+                common.userAttributes = userAttributes;
                 loadFullStackEvents();
             }
         }
