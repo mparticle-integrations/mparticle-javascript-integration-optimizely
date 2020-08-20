@@ -6,7 +6,9 @@ function EventHandler(common) {
 }
 
 EventHandler.prototype.logEvent = function(event) {
-    if (optimizelyWebXEvents.events[event.EventName]) {
+    var self = this;
+
+    if (!self.common.useFullStack && optimizelyWebXEvents.events[event.EventName]) {
         var optimizelyWebXEvent = {
             type: 'event',
             eventName: event.EventName
@@ -23,8 +25,7 @@ EventHandler.prototype.logEvent = function(event) {
     }
 
     // if optimizely full stack is being used
-    if (window.optimizelyClientInstance && optimizelyFullStackEvents.events[event.EventName]) {
-        var self = this;
+    if (self.common.useFullStack && window.optimizelyClientInstance && optimizelyFullStackEvents.events[event.EventName]) {
         var eventKey = event.EventName,
             userId,
             userAttributes = self.common.userAttributes,
@@ -35,25 +36,25 @@ EventHandler.prototype.logEvent = function(event) {
             var userIdentities = identities['userIdentities'];
             switch(self.common.userIdField) {
                 case 'customerId':
-                    userId = userIdentities["customerId"];
+                    userId = userIdentities['customerId'];
                     break;
                 case 'email':
-                    userId = userIdentities["email"];
+                    userId = userIdentities['email'];
                     break;
                 case 'mpid':
-                    userId = userIdentities["mpid"];
+                    userId = userIdentities['mpid'];
                     break;
                 case 'other':
-                    userId = userIdentities["other"];
+                    userId = userIdentities['other'];
                     break;
                 case 'other2':
-                    userId = userIdentities["other2"];
+                    userId = userIdentities['other2'];
                     break;
                 case 'other3':
-                    userId = userIdentities["other3"];
+                    userId = userIdentities['other3'];
                     break;
                 case 'other4':
-                    userId = userIdentities["other4"];
+                    userId = userIdentities['other4'];
                     break;
                 case 'deviceApplicationStamp':
                     userId = window.mParticle.getDeviceId();
@@ -81,7 +82,9 @@ EventHandler.prototype.logEvent = function(event) {
 };
 
 EventHandler.prototype.logPageView = function(event) {
-    if (optimizelyWebXEvents.pages[event.EventName]) {
+    var self = this;
+
+    if (!self.common.useFullStack && optimizelyWebXEvents.pages[event.EventName]) {
         var optimizelyWebXEvent = {
             type: 'page',
             pageName: event.EventName

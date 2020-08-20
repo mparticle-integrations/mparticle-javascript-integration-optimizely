@@ -6,6 +6,8 @@ var initialization = {
     name: 'Optimizely',
     moduleId: 54,
     initForwarder: function(settings, testMode, userAttributes, userIdentities, processEvent, eventQueue, isInitialized, common, appVersion, appName, customFlags, clientId) {
+        common.useFullStack = settings.useFullStack;
+
         if (!testMode) {
             if (!window.optimizely && !settings.useFullStack) {
                 var optimizelyScript = document.createElement('script');
@@ -99,7 +101,7 @@ function loadFullStackEvents() {
 
 
     if (window.optimizelyDatafile) {
-        fullStackData = helpers.arrayToObject(window.optimizelyDatafile.events, "id");
+        fullStackData = helpers.arrayToObject(window.optimizelyDatafile.events, 'id');
 
         for (var event in fullStackData) {
             fullStackEvents[fullStackData[event].key] = 1;

@@ -13,7 +13,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
     );
 
     expandedEcommerceEvents.forEach(function(expandedEvent) {
-        if (optimizelyWebXEvents.events[expandedEvent.EventName]) {
+        if (!self.common.useFullStack && optimizelyWebXEvents.events[expandedEvent.EventName]) {
 
             var optimizelyWebXEvent = {
                 type: 'event',
@@ -78,7 +78,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
         }
 
         // if optimizely full stack is being used
-        if (window.optimizelyClientInstance) {
+        if (self.common.useFullStack && window.optimizelyClientInstance) {
             if (optimizelyFullStackEvents.events[expandedEvent.EventName] || optimizelyFullStackEvents.events[event.CustomFlags['OptimizelyFullStack.EventName']]) {
                 var eventKey = expandedEvent.EventName,
                     userId,
@@ -93,25 +93,25 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
         
                     switch(self.common.userIdField) {
                         case 'customerId':
-                            userId = userIdentities["customerId"];
+                            userId = userIdentities['customerId'];
                             break;
                         case 'email':
-                            userId = userIdentities["email"];
+                            userId = userIdentities['email'];
                             break;
                         case 'mpid':
-                            userId = userIdentities["mpid"];
+                            userId = userIdentities['mpid'];
                             break;
                         case 'other':
-                            userId = userIdentities["other"];
+                            userId = userIdentities['other'];
                             break;
                         case 'other2':
-                            userId = userIdentities["other2"];
+                            userId = userIdentities['other2'];
                             break;
                         case 'other3':
-                            userId = userIdentities["other3"];
+                            userId = userIdentities['other3'];
                             break;
                         case 'other4':
-                            userId = userIdentities["other4"];
+                            userId = userIdentities['other4'];
                             break;
                         case 'deviceApplicationStamp':
                             userId = window.mParticle.getDeviceId();
@@ -173,9 +173,8 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                             event.CustomFlags['OptimizelyFullStack.EventName'];
                     }
                 }
+                window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);                
             }
-
-            window['optimizelyClientInstance'].track(eventKey, userId, userAttributes, eventTags);
         }
 
     });

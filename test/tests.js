@@ -417,51 +417,51 @@ describe('Optimizely Forwarder', function () {
             // Mock Optimizely Full Stack Datafile
             window.optimizelyDatafile =
             {
-                "version": "4",
-                "projectId": "18390990327",
-                "variables": [],
-                "featureFlags": [
+                'version': '4',
+                'projectId': '18390990327',
+                'variables': [],
+                'featureFlags': [
                   {
-                    "experimentIds": [],
-                    "rolloutId": "18375930463",
-                    "variables": [
+                    'experimentIds': [],
+                    'rolloutId': '18375930463',
+                    'variables': [
                       {
-                        "defaultValue": "",
-                        "type": "string",
-                        "id": "18375860245",
-                        "key": "f2variable1"
+                        'defaultValue': '',
+                        'type': 'string',
+                        'id': '18375860245',
+                        'key': 'f2variable1'
                       }
                     ],
-                    "id": "18360310384",
-                    "key": "featurename2"
+                    'id': '18360310384',
+                    'key': 'featurename2'
                   },
                   {
-                    "experimentIds": [],
-                    "rolloutId": "18389000125",
-                    "variables": [
+                    'experimentIds': [],
+                    'rolloutId': '18389000125',
+                    'variables': [
                       {
-                        "defaultValue": "",
-                        "type": "string",
-                        "id": "18358530123",
-                        "key": "f1variable1"
+                        'defaultValue': '',
+                        'type': 'string',
+                        'id': '18358530123',
+                        'key': 'f1variable1'
                       }
                     ],
-                    "id": "18381870404",
-                    "key": "featurename1"
+                    'id': '18381870404',
+                    'key': 'featurename1'
                   }
                 ],
-                "experiments": [],
-                "accountId": "7015510640",
-                "events": [
+                'experiments': [],
+                'accountId': '7015510640',
+                'events': [
                   {
-                    "experimentIds": [],
-                    "id": "18356890341",
-                    "key": "eventKey2"
+                    'experimentIds': [],
+                    'id': '18356890341',
+                    'key': 'eventKey2'
                   },
                   {
-                    "experimentIds": [],
-                    "id": "18391220198",
-                    "key": "eventKey1"
+                    'experimentIds': [],
+                    'id': '18391220198',
+                    'key': 'eventKey1'
                   },
                    {
                         'experimentIds': [],
