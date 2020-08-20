@@ -499,7 +499,7 @@ describe('Optimizely Forwarder', function () {
             mParticle.forwarder.init(sdkSettings, reportService.cb, true, null, userAttributes, userIdentities);
         });
 
-        it('should track a custom event that exists in the datafile', function(done) {
+        it('should track a custom event that exists in the dataFile', function(done) {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageEvent,
                 EventName: 'eventKey1',
@@ -517,7 +517,7 @@ describe('Optimizely Forwarder', function () {
             done();
         });
 
-        it('should not track a custom event if it does not exist in the datafile', function(done) {
+        it('should not track a custom event if it does not exist in the dataFile', function(done) {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageEvent,
                 EventName: 'invalidEventKey',
@@ -686,6 +686,40 @@ describe('Optimizely Forwarder', function () {
             );
             window.fullStackEventQueue[1].eventTags.Variant.should.equal('6');
             Should(window.fullStackEventQueue[1].eventTags.revenue).not.be.ok();
+            done();
+        });
+
+        it('should not track a commerce event that is not part of the dataFile', function(done) {
+            mParticle.forwarder.process({
+                EventName: 'eCommerce - AddToCart',
+                CustomFlags: {},
+                EventDataType: MessageType.Commerce,
+                EventCategory: CommerceEventType.AddToCart,
+                ProductAction: {
+                    ProductActionType: ProductActionType.AddToCart,
+                    ProductList: [
+                        {
+                            Sku: '12345',
+                            Category: 'Phones',
+                            Brand: 'iPhone 6',
+                            Variant: '6',
+                            Price: 400,
+                            TotalAmount: 400,
+                            CouponCode: 'coupon-code',
+                            Quantity: 1,
+                        },
+                    ],
+                    TransactionId: 123,
+                    Affiliation: 'my-affiliation',
+                    TotalAmount: 450,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: null,
+                },
+            });
+
+            window.fullStackEventQueue.length.should.equal(0);
+
             done();
         });
     });
