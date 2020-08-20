@@ -1,5 +1,6 @@
 var optimizelyWebXEvents = require('./optimizely-x-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
+var helpers = require('./helpers');
 
 function CommerceHandler(common) {
     this.common = common || {};
@@ -90,39 +91,7 @@ CommerceHandler.prototype.logCommerceEvent = function(event) {
                 if (window.mParticle && window.mParticle.Identity) {
                     var identities = window.mParticle.Identity.getCurrentUser().getUserIdentities();
                     var userIdentities = identities['userIdentities'];
-        
-                    switch(self.common.userIdField) {
-                        case 'customerId':
-                            userId = userIdentities['customerId'];
-                            break;
-                        case 'email':
-                            userId = userIdentities['email'];
-                            break;
-                        case 'mpid':
-                            userId = userIdentities['mpid'];
-                            break;
-                        case 'other':
-                            userId = userIdentities['other'];
-                            break;
-                        case 'other2':
-                            userId = userIdentities['other2'];
-                            break;
-                        case 'other3':
-                            userId = userIdentities['other3'];
-                            break;
-                        case 'other4':
-                            userId = userIdentities['other4'];
-                            break;
-                        case 'deviceApplicationStamp':
-                            userId = window.mParticle.getDeviceId();
-                            break;
-                        default:
-                            userId = null;
-                    }
-
-                    if (!userId) {
-                        userId = window.mParticle.getDeviceId();
-                    }
+                    userId = helpers.getUserId(self.common.userIdField, userIdentities);
                 }
 
                 if (
