@@ -31,9 +31,7 @@ EventHandler.prototype.logEvent = function(event) {
             eventTags = {};
 
         if (window.mParticle && window.mParticle.Identity) {
-            var identities = window.mParticle.Identity.getCurrentUser().getUserIdentities();
-            var userIdentities = identities['userIdentities'];
-            userId = helpers.getUserId(this.common.userIdField, userIdentities);
+            userId = helpers.getUserId(this.common.userIdField);
         }
 
         if (event.EventAttributes) {

@@ -13,7 +13,9 @@ var helpers = {
         script.src = src;
         document.head.appendChild(script);
     },
-    getUserId: function(userIdField, userIdentities) {
+    getUserId: function(userIdField) {
+        var identities = window.mParticle.Identity.getCurrentUser().getUserIdentities();
+        var userIdentities = identities['userIdentities'];
         var userId;
         switch(userIdField) {
             case 'customerId':
