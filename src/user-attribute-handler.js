@@ -3,9 +3,7 @@ function UserAttributeHandler(common) {
 }
 
 UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
-    var self = this;
-
-    if (!self.common.useFullStack && window.optimizely) {
+    if (!this.common.useFullStack && window.optimizely) {
         var attribute = {};
         attribute[key] = null;
         window['optimizely'].push({
@@ -13,16 +11,14 @@ UserAttributeHandler.prototype.onRemoveUserAttribute = function(key) {
             attributes: attribute
         });
     }
-    if (self.common.useFullStack && window.optimizelyClientInstance) {
+    if (this.common.useFullStack && window.optimizelyClientInstance) {
         if (this.common.userAttributes[key]) {
             delete this.common.userAttributes[key];
         }
     }
 };
 UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
-    var self = this;
-
-    if (!self.common.useFullStack && window.optimizely) {
+    if (!this.common.useFullStack && window.optimizely) {
         var attribute = {};
         attribute[key] = value;
         window['optimizely'].push({
@@ -30,7 +26,7 @@ UserAttributeHandler.prototype.onSetUserAttribute = function(key, value) {
             attributes: attribute
         });
     }
-    if (self.common.useFullStack && window.optimizelyClientInstance) {
+    if (this.common.useFullStack && window.optimizelyClientInstance) {
         var self = this;
         self.common.userAttributes[key] = value;
     }    

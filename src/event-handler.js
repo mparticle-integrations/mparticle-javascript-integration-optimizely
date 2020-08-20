@@ -1,14 +1,13 @@
 var optimizelyWebXEvents = require('./optimizely-x-defined-events');
 var optimizelyFullStackEvents = require('./optimizely-fs-defined-events');
+var helpers = require('./helpers');
 
 function EventHandler(common) {
     this.common = common || {};
 }
 
 EventHandler.prototype.logEvent = function(event) {
-    var self = this;
-
-    if (!self.common.useFullStack && optimizelyWebXEvents.events[event.EventName]) {
+    if (!this.common.useFullStack && optimizelyWebXEvents.events[event.EventName]) {
         var optimizelyWebXEvent = {
             type: 'event',
             eventName: event.EventName
@@ -25,48 +24,16 @@ EventHandler.prototype.logEvent = function(event) {
     }
 
     // if optimizely full stack is being used
-    if (self.common.useFullStack && window.optimizelyClientInstance && optimizelyFullStackEvents.events[event.EventName]) {
+    if (this.common.useFullStack && window.optimizelyClientInstance && optimizelyFullStackEvents.events[event.EventName]) {
         var eventKey = event.EventName,
             userId,
-            userAttributes = self.common.userAttributes,
+            userAttributes = this.common.userAttributes,
             eventTags = {};
 
         if (window.mParticle && window.mParticle.Identity) {
             var identities = window.mParticle.Identity.getCurrentUser().getUserIdentities();
             var userIdentities = identities['userIdentities'];
-            switch(self.common.userIdField) {
-                case 'customerId':
-                    userId = userIdentities['customerId'];
-                    break;
-                case 'email':
-                    userId = userIdentities['email'];
-                    break;
-                case 'mpid':
-                    userId = userIdentities['mpid'];
-                    break;
-                case 'other':
-                    userId = userIdentities['other'];
-                    break;
-                case 'other2':
-                    userId = userIdentities['other2'];
-                    break;
-                case 'other3':
-                    userId = userIdentities['other3'];
-                    break;
-                case 'other4':
-                    userId = userIdentities['other4'];
-                    break;
-                case 'deviceApplicationStamp':
-                    userId = window.mParticle.getDeviceId();
-                    break;
-                default:
-                    // this should never hit, since a user is required to select from a userId type from the userIdField dropdown
-                    userId = null;
-            }
-
-            if (!userId) {
-                userId = window.mParticle.getDeviceId();
-            }
+            userId = helpers.getUserId(this.common.userIdField, userIdentities);
         }
 
         if (event.EventAttributes) {
