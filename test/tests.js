@@ -478,7 +478,7 @@ describe('Optimizely Forwarder', function () {
             // Include any specific settings that are required for initializing your SDK here
             var sdkSettings = {
                 projectId: 'LYLgZJqZzFKd5SaNLcQRc',
-                useFullStack: true,
+                useFullStack: 'True',
                 userIdField: 'other3',
             };
             // You may require userAttributes or userIdentities to be passed into initialization
@@ -576,7 +576,7 @@ describe('Optimizely Forwarder', function () {
         it('should set userId to deviceId on an event if userId doesnt exist', function(done) {
             var sdkSettings = {
                 projectId: 'LYLgZJqZzFKd5SaNLcQRc',
-                useFullStack: true,
+                useFullStack: 'True',
             };
             var userAttributes = {
                 color: 'green'
