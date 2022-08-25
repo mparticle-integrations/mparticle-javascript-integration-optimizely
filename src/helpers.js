@@ -27,7 +27,7 @@ var helpers = {
                 userId = userIdentities['email'];
                 break;
             case 'mpid':
-                userId = userIdentities['mpid'];
+                userId = window.mParticle.Identity.getCurrentUser().getMPID();
                 break;
             case 'other':
                 userId = userIdentities['other'];
