@@ -2,6 +2,9 @@
 
 --
 
+#### 2.1.6 - 2022-08-25
+* fix: swap mpid origin (#48)
+ 
 #### 2.1.5 - 2022-04-20
 * fix - update datafile loading callback
 
